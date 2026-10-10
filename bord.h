@@ -4,7 +4,11 @@ typedef struct
     char **board;
 } board;
 
-board create_null_board(void);
-void free_board(board b);
+board CreateNullBoard(void);
+void FreeBoard(board b);
 
-board initilise_board(board b);
+board InitiliseBoard(board b);
+
+void PrintBoard(board b);
+board Mouve(board b, char piece, uint x, uint y);
+bool CheckMouve(board b, char piece, uint x, uint y);
