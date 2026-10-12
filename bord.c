@@ -39,6 +39,36 @@ char CHESS_PIECES[12] = {'P', 'N', 'B', 'R', 'Q', 'K', 'p', 'n', 'b', 'r', 'q', 
  * 8    [ r , n , b , q , k , b , n , r ]  (Black Major Pieces)
  */
 
+/*
+ *1. The Piece (Character 1)
+
+   *The first character is always a capital letter representing the piece being moved.
+    *K = King
+    *Q = Queen
+    *R = Rook
+    *B = Bishop
+    *N = Knight (since 'K' is taken by the King)
+    *(Pawns do not get a letter—you just write the square they move to).
+
+ *2. The Destination Square (Characters 2 & 3)
+
+  *The next two characters are the exact coordinate of the square the piece is landing on.
+
+    *Column (File): A lowercase letter from a to h.
+    *Row (Rank): A number from 1 to 8.
+
+Examples of 3-Character Moves
+
+    *Nf3 : Nknight moves to square f3.
+    *Bc4 : Bishop moves to square c4.
+    *Qd8 : Queen moves to square d8.
+    *O-O : Kingside Castling (also exactly 3 characters).
+
+ *The Exceptions (When it's not 3 characters)
+
+    *Pawn moves (2 chars): Since pawns don't use a capital letter, moving a pawn to e4 is simply written as e4.
+    *Captures (4 chars): If a piece is captured, an 'x' is inserted in the middle. E.g., Nxd4 (Knight captures on d4).
+    *Disambiguation (4 chars): If two of the same pieces can move to the same square (like two Rooks), you specify which one moved by adding its starting column. E.g., Rad1 (The Rook on the 'a' file moves to d1).*/
 board CreateNullBoard(void)
 {
     board b;
@@ -131,7 +161,17 @@ void PrintBoard(board b)
         printf("\n");
     }
 }
-
+mouve getMouve(void)
+{
+    char piece;
+    char position;
+    bool captures;
+    uint nub;
+    mouve *curent = malloc(sizeof(mouve));
+    scanf("%d");
+}
+board Mouve(board b, char piece, uint x, uint y);
+bool CheckMouve(board b, char piece, uint x, uint y);
 int main(void)
 {
     board b = CreateNullBoard();
