@@ -8,6 +8,7 @@ bool isEmpty(Board board, uint x, uint y) {
 }
 
 bool isWhite(Board board, uint x, uint y) {
+    
     uint piece = board[y][x];
     if (piece == 0) {
         fprintf(stderr, "there is no color for an empty place");
@@ -17,6 +18,7 @@ bool isWhite(Board board, uint x, uint y) {
 }
 
 bool CheckWhitePawn(Board board, mouve *m) {
+    if (m->xEnd==m->xStart && m->yEnd==m->yStart) return false;
     bool emptyEnd=isEmpty(board, m->xEnd, m->yEnd);
 
     if (m->xEnd == m->xStart){
@@ -31,6 +33,7 @@ bool CheckWhitePawn(Board board, mouve *m) {
 
 bool CheckBlackPawn(Board board, mouve *m) {
     bool emptyEnd=isEmpty(board, m->xEnd, m->yEnd);
+    if (m->xEnd==m->xStart && m->yEnd==m->yStart) return false;
 
     if (m->xEnd == m->xStart){
         if (m->yEnd == (m->yStart + 1) && emptyEnd) return true; 
@@ -42,14 +45,45 @@ bool CheckBlackPawn(Board board, mouve *m) {
     return false;
 }
 
+bool CheckWhiteRook(Board board, mouve *m) {
+    if (m->xEnd != m->xStart && m->yEnd != m->yStart) return false;
+    if (m->xEnd == m->xStart && m->yEnd == m->yStart) return false;
+    
+    if (m->xEnd == m->xStart) {
+        if (m->yStart > m->yEnd) {
+            for (int yCurent = m->yStart - 1; yCurent > m->yEnd; yCurent--) {
+                if (!isEmpty(board, m->xStart, yCurent)) return false;
+            }
+        } else {
+            for (int yCurent = m->yStart + 1; yCurent < m->yEnd; yCurent++) {
+                if (!isEmpty(board, m->xStart, yCurent)) return false;
+            }
+        }
+        if (isEmpty(board, m->xEnd, m->yEnd) || !isWhite(board, m->xEnd, m->yEnd)) return true;
+    } else {
+        if (m->xStart > m->xEnd) {
+            for (int xCurent = m->xStart - 1; xCurent > m->xEnd; xCurent--) {
+                if (!isEmpty(board, xCurent, m->yStart)) return false;
+            }
+        } else {
+            for (int xCurent = m->xStart + 1; xCurent < m->xEnd; xCurent++) {
+                if (!isEmpty(board, xCurent, m->yStart)) return false;
+            }
+        }
+        if (isEmpty(board, m->xEnd, m->yEnd) || !isWhite(board, m->xEnd, m->yEnd)) return true;
+    }
+    return false;
+}
+bool CheckBlackRook(Board board, mouve *m) { return false; }
+
+
+
 bool CheckWhiteKnight(Board board, mouve *m) { return false; }
 bool CheckBlackKnight(Board board, mouve *m) { return false; }
 
 bool CheckWhiteBishop(Board board, mouve *m) { return false; }
 bool CheckBlackBishop(Board board, mouve *m) { return false; }
 
-bool CheckWhiteRook(Board board, mouve *m) { return false; }
-bool CheckBlackRook(Board board, mouve *m) { return false; }
 
 bool CheckWhiteQueen(Board board, mouve *m) { return false; }
 bool CheckBlackQueen(Board board, mouve *m) { return false; }
