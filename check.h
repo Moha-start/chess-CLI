@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include "bord.h"
 bool isEmpty(Board board ,uint x,uint y);
+bool isWhite(Board board ,uint x,uint y);
 // Piece-specific and color-specific move validation functions
 bool CheckWhitePawn(Board board, mouve *m);
 bool CheckBlackPawn(Board board, mouve *m);
