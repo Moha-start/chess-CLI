@@ -29,22 +29,33 @@ bool CheckWhitePawn(Board board, mouve *m) {
     return false;
 }
 
-bool CheckBlackPawn(Board board, mouve *m) { return true; }
+bool CheckBlackPawn(Board board, mouve *m) {
+    bool emptyEnd=isEmpty(board, m->xEnd, m->yEnd);
 
-bool CheckWhiteKnight(Board board, mouve *m) { return true; }
-bool CheckBlackKnight(Board board, mouve *m) { return true; }
+    if (m->xEnd == m->xStart){
+        if (m->yEnd == (m->yStart + 1) && emptyEnd) return true; 
+        if (m->yStart == 1 && m->yEnd == (m->yStart + 2) && emptyEnd && isEmpty(board, m->xEnd, m->yStart + 1)) return true;
+    } else if (m->xEnd == m->xStart + 1 || m->xEnd == m->xStart - 1){
+        if (m->yStart==m->yEnd-1 && !emptyEnd&&isWhite(board,m->xEnd,m->yEnd))return true;
+    }
 
-bool CheckWhiteBishop(Board board, mouve *m) { return true; }
-bool CheckBlackBishop(Board board, mouve *m) { return true; }
+    return false;
+}
 
-bool CheckWhiteRook(Board board, mouve *m) { return true; }
-bool CheckBlackRook(Board board, mouve *m) { return true; }
+bool CheckWhiteKnight(Board board, mouve *m) { return false; }
+bool CheckBlackKnight(Board board, mouve *m) { return false; }
 
-bool CheckWhiteQueen(Board board, mouve *m) { return true; }
-bool CheckBlackQueen(Board board, mouve *m) { return true; }
+bool CheckWhiteBishop(Board board, mouve *m) { return false; }
+bool CheckBlackBishop(Board board, mouve *m) { return false; }
 
-bool CheckWhiteKing(Board board, mouve *m) { return true; }
-bool CheckBlackKing(Board board, mouve *m) { return true; }
+bool CheckWhiteRook(Board board, mouve *m) { return false; }
+bool CheckBlackRook(Board board, mouve *m) { return false; }
+
+bool CheckWhiteQueen(Board board, mouve *m) { return false; }
+bool CheckBlackQueen(Board board, mouve *m) { return false; }
+
+bool CheckWhiteKing(Board board, mouve *m) { return false; }
+bool CheckBlackKing(Board board, mouve *m) { return false; }
 
 bool CheckMouve(Board board, mouve *m) {
     uint startpiece = board[m->yStart][m->xStart]; 

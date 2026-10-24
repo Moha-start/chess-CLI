@@ -163,19 +163,3 @@ bool Mouve(Board board, mouve *m) {
     return true; 
 }
 
-int main(void) {
-    bool isWhite = true;
-    Board b = CreateNullBoard();
-    InitiliseBoard(b);
-    PrintBoard(b);
-    mouve *mv = getMouve(isWhite);
-    if (mv == NULL) {
-        fprintf(stderr, "ther is an error with the mouvement\n");
-        exit(EXIT_FAILURE);
-    }
-    printf("Move is valid: %u\n", CheckMouve(b, mv));
-    printmouve(b, mv);
-    Mouve(b, mv);
-    FreeBoard(b);
-    return 0;
-}
