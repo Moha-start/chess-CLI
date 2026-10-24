@@ -17,19 +17,15 @@ bool isWhite(Board board, uint x, uint y) {
 }
 
 bool CheckWhitePawn(Board board, mouve *m) {
-    if (m->yStart == 6) {
-        if (m->yEnd == (m->yStart - 1) && isEmpty(board, m->xEnd, m->yEnd)) {
-            return true;
-        } else if (m->yEnd == (m->yStart - 2) && isEmpty(board, m->xEnd, m->yEnd)) {
-            return true;
-        }
-    } else {
-        if (m->yEnd == (m->yStart - 1)) {
-            if (isEmpty(board, m->xEnd, m->yEnd)) {
-                return true;
-            }
-        }
-    }    
+    bool emptyEnd=isEmpty(board, m->xEnd, m->yEnd);
+
+    if (m->xEnd == m->xStart){
+        if (m->yEnd == (m->yStart - 1) && emptyEnd) return true; 
+        if (m->yStart == 6 && m->yEnd == (m->yStart - 2) && emptyEnd && isEmpty(board, m->xEnd, m->yStart - 1)) return true;
+    } else if (m->xEnd == m->xStart + 1 || m->xEnd == m->xStart - 1){
+        if (m->yStart==m->yEnd+1 && !emptyEnd&&!isWhite(board,m->xEnd,m->yEnd))return true;
+    }
+
     return false;
 }
 
