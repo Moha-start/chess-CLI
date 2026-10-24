@@ -1,7 +1,11 @@
 #include <stdbool.h>
 #include "check.h"
-
-bool CheckWhitePawn(Board board, mouve *m) { return true; }
+bool isEmpty(Board board ,uint x,uint y){
+    return board[x][y]==EMPTY;
+}
+bool CheckWhitePawn(Board board, mouve *m) {
+    if (m->xStart==1)
+    return true; }
 bool CheckBlackPawn(Board board, mouve *m) { return true; }
 
 bool CheckWhiteKnight(Board board, mouve *m) { return true; }
