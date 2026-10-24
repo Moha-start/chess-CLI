@@ -74,6 +74,7 @@ bool CheckWhiteRook(Board board, mouve *m) {
     }
     return false;
 }
+
 bool CheckBlackRook(Board board, mouve *m) {
     if (m->xEnd != m->xStart && m->yEnd != m->yStart) return false;
     if (m->xEnd == m->xStart && m->yEnd == m->yStart) return false;
@@ -104,14 +105,57 @@ bool CheckBlackRook(Board board, mouve *m) {
     return false;
 }
 
+bool CheckWhiteBishop(Board board, mouve *m) { 
+    if (m->xEnd == m->xStart || m->yEnd == m->yStart) return false;
+    
+    uint difx = m->xStart > m->xEnd ? m->xStart - m->xEnd : m->xEnd - m->xStart;
+    uint dify = m->yStart > m->yEnd ? m->yStart - m->yEnd : m->yEnd - m->yStart;
+    
+    if (dify != difx) return false;
+    
+    int stepX = (m->xEnd > m->xStart) ? 1 : -1;
+    int stepY = (m->yEnd > m->yStart) ? 1 : -1;
+    
+    uint x = m->xStart + stepX;
+    uint y = m->yStart + stepY;
+    
+    while (x != m->xEnd) {
+        if (!isEmpty(board, x, y)) return false;
+        x += stepX;
+        y += stepY;
+    }
 
+    if (!isWhite(board, m->xEnd, m->yEnd)) return true;
+
+    return false; 
+}
+bool CheckBlackBishop(Board board, mouve *m) {
+    if (m->xEnd == m->xStart || m->yEnd == m->yStart) return false;
+    
+    uint difx = m->xStart > m->xEnd ? m->xStart - m->xEnd : m->xEnd - m->xStart;
+    uint dify = m->yStart > m->yEnd ? m->yStart - m->yEnd : m->yEnd - m->yStart;
+    
+    if (dify != difx) return false;
+    
+    int stepX = (m->xEnd > m->xStart) ? 1 : -1;
+    int stepY = (m->yEnd > m->yStart) ? 1 : -1;
+    
+    uint x = m->xStart + stepX;
+    uint y = m->yStart + stepY;
+    
+    while (x != m->xEnd) {
+        if (!isEmpty(board, x, y)) return false;
+        x += stepX;
+        y += stepY;
+    }
+
+    if (isWhite(board, m->xEnd, m->yEnd)) return true;
+
+    return false; 
+}
 
 bool CheckWhiteKnight(Board board, mouve *m) { return false; }
 bool CheckBlackKnight(Board board, mouve *m) { return false; }
-
-bool CheckWhiteBishop(Board board, mouve *m) { return false; }
-bool CheckBlackBishop(Board board, mouve *m) { return false; }
-
 
 bool CheckWhiteQueen(Board board, mouve *m) { return false; }
 bool CheckBlackQueen(Board board, mouve *m) { return false; }
