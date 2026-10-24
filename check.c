@@ -17,6 +17,9 @@ bool isWhite(Board board, uint x, uint y) {
     return piece / 10 == 1 ? true : false;
 }
 
+bool isKingAttaked(Board board,mouve *m);
+
+
 bool CheckWhitePawn(Board board, mouve *m) {
     if (m->xEnd==m->xStart && m->yEnd==m->yStart) return false;
     bool emptyEnd=isEmpty(board, m->xEnd, m->yEnd);
@@ -30,7 +33,6 @@ bool CheckWhitePawn(Board board, mouve *m) {
 
     return false;
 }
-
 bool CheckBlackPawn(Board board, mouve *m) {
     bool emptyEnd=isEmpty(board, m->xEnd, m->yEnd);
     if (m->xEnd==m->xStart && m->yEnd==m->yStart) return false;
@@ -74,7 +76,6 @@ bool CheckWhiteRook(Board board, mouve *m) {
     }
     return false;
 }
-
 bool CheckBlackRook(Board board, mouve *m) {
     if (m->xEnd != m->xStart && m->yEnd != m->yStart) return false;
     if (m->xEnd == m->xStart && m->yEnd == m->yStart) return false;
@@ -125,7 +126,7 @@ bool CheckWhiteBishop(Board board, mouve *m) {
         y += stepY;
     }
 
-    if (!isWhite(board, m->xEnd, m->yEnd)) return true;
+    if (isEmpty(board, m->xEnd, m->yEnd) || isWhite(board, m->xEnd, m->yEnd)) return true;
 
     return false; 
 }
@@ -149,19 +150,44 @@ bool CheckBlackBishop(Board board, mouve *m) {
         y += stepY;
     }
 
-    if (isWhite(board, m->xEnd, m->yEnd)) return true;
+    if (isEmpty(board, m->xEnd, m->yEnd) || isWhite(board, m->xEnd, m->yEnd)) return true;
 
     return false; 
 }
 
-bool CheckWhiteKnight(Board board, mouve *m) { return false; }
-bool CheckBlackKnight(Board board, mouve *m) { return false; }
+bool CheckWhiteKnight(Board board, mouve *m) { 
+    uint difx = m->xStart > m->xEnd ? m->xStart - m->xEnd : m->xEnd - m->xStart;
+    uint dify = m->yStart > m->yEnd ? m->yStart - m->yEnd : m->yEnd - m->yStart;
+    if (difx+dify!=3) return false;
+    if (isEmpty(board,m->xEnd,m->yEnd)||!isWhite(board,m->xEnd,m->yEnd)) return true;
+    return false; }
+bool CheckBlackKnight(Board board, mouve *m) { 
+    if (m->xEnd == m->xStart || m->yEnd == m->yStart) return false;
+    uint difx = m->xStart > m->xEnd ? m->xStart - m->xEnd : m->xEnd - m->xStart;
+    uint dify = m->yStart > m->yEnd ? m->yStart - m->yEnd : m->yEnd - m->yStart;
+    if (difx+dify!=3) return false;
+    if (isEmpty(board,m->xEnd,m->yEnd)||isWhite(board,m->xEnd,m->yEnd)) return true;
+    return false; }
 
-bool CheckWhiteQueen(Board board, mouve *m) { return false; }
-bool CheckBlackQueen(Board board, mouve *m) { return false; }
+bool CheckWhiteQueen(Board board, mouve *m) { 
+    return CheckWhiteRook(board,m)||CheckWhiteBishop(board,m); }
+bool CheckBlackQueen(Board board, mouve *m) { 
+    return CheckWhiteRook(board,m)||CheckWhiteBishop(board,m); }
 
-bool CheckWhiteKing(Board board, mouve *m) { return false; }
-bool CheckBlackKing(Board board, mouve *m) { return false; }
+bool CheckWhiteKing(Board board, mouve *m) { 
+    uint difx = m->xStart > m->xEnd ? m->xStart - m->xEnd : m->xEnd - m->xStart;
+    uint dify = m->yStart > m->yEnd ? m->yStart - m->yEnd : m->yEnd - m->yStart;
+    if ((difx <= 1 && dify <= 1) && (difx != 0 || dify != 0)){
+        if (isEmpty(board,m->xEnd,m->yEnd)||!isWhite(board,m->xEnd,m->yEnd)) return true;
+    }
+    return false; }
+bool CheckBlackKing(Board board, mouve *m) { 
+    uint difx = m->xStart > m->xEnd ? m->xStart - m->xEnd : m->xEnd - m->xStart;
+    uint dify = m->yStart > m->yEnd ? m->yStart - m->yEnd : m->yEnd - m->yStart;
+    if ((difx <= 1 && dify <= 1) && (difx != 0 || dify != 0)){
+        if (isEmpty(board,m->xEnd,m->yEnd) || isWhite(board,m->xEnd,m->yEnd)) return true;
+    }
+    return false; }
 
 bool CheckMouve(Board board, mouve *m) {
     uint startpiece = board[m->yStart][m->xStart]; 
