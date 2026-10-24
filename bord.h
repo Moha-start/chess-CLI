@@ -2,16 +2,17 @@
 #define BORD_H
 
 #include <stdbool.h>
+
 enum pieces
 {
     EMPTY = 0,
-    B_PAWN = 11,
+    B_PAWN = 21,
     B_KNIGHT,
     B_BISHOP,
     B_ROOK,
     B_QUEEN,
     B_KING,
-    W_PAWN = 21,
+    W_PAWN = 11,
     W_KNIGHT,
     W_BISHOP,
     W_ROOK,
@@ -23,25 +24,26 @@ typedef unsigned int uint;
 // Represent the board directly as a 2D dynamically allocated array
 typedef uint **Board;
 
-typedef struct
-{
-    char xStart;
+typedef struct{
+    uint xStart;
     uint yStart;
-    char xEnd;
+    uint xEnd;
     uint yEnd;
+    bool isWhite;
 } mouve;
 
 // Board allocation and lifecycle
-uint **CreateNullBoard(void);
-void FreeBoard(uint **board);
-uint **InitiliseBoard(uint **board);
+Board CreateNullBoard(void);
+void FreeBoard(Board board);
+void InitiliseBoard(Board board);
 char PieceToChar(uint piece);
-void PrintBoard(uint **board);
+void PrintBoard(Board board);
+uint FromChartoUint(char c);
+char FromUintToChar(uint n);
 
 // Move operations
-mouve *getMouve(void);
-void printmouve(uint **board, mouve *m);
-uint **Mouve(uint **board, uint piece, uint x, uint y);
-bool CheckMouve(uint **board, uint piece, uint x, uint y);
+mouve *getMouve(bool isWhite);
+void printmouve(Board board, mouve *m);
+bool Mouve(Board board, mouve *m);
 
 #endif // BORD_H

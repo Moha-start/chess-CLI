@@ -5,5 +5,4 @@ link_directories(${CMAKE_SOURCE_DIR})
 
 set(CMAKE_C_FLAGS "-std=c99 -g -Wall")
 
-add_executable(board bord.c)
-
+add_executable(board bord.c check.c)
