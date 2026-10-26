@@ -3,6 +3,12 @@
 #include <stdbool.h>
 #include "check.h"
 
+uint getRank(GameState *board, uint x, uint y){
+    return board->grid[y][x]%10;
+}
+uint getRankPiece(uint piece){
+    return piece%10;
+}
 bool isEmpty(GameState *board, uint x, uint y) {
     return board->grid[y][x] == EMPTY;
 }
@@ -16,39 +22,36 @@ bool isWhite(GameState *board, uint x, uint y) {
     return piece / 10 == 1 ? true : false;
 }
 
+bool isWhitePiece(uint piece){
+    if (piece == 0) {
+        fprintf(stderr, "there is no color for an empty place");
+        exit(EXIT_FAILURE);
+    }
+    return piece / 10 == 1 ? true : false;
+}
+
 bool isKingAttaked(GameState *board, uint x, uint y, bool isWhiteKing){
-    // 1. Check for 1-step pieces (King and Pawn)
     int list[3] = {-1, 0, 1};
     for (uint i = 0; i < 3; i++) {
         for (uint j = 0; j < 3; j++) {
-            if (i == 1 && j == 1) continue; // Skip the center square (x,y)
+            if (i == 1 && j == 1) continue; 
             
             int xNew = (int)x + list[i];
             int yNew = (int)y + list[j];
             
             if (xNew >= 0 && xNew <= 7 && yNew >= 0 && yNew <= 7) {
-                // Check if piece exists and is of the opposite color
                 if (!isEmpty(board, xNew, yNew) && isWhiteKing != isWhite(board, xNew, yNew)) {
-                    int pieceType = board->grid[yNew][xNew] % 10;
-                    
-                    // King
+                    int pieceType = getRank(board, xNew, yNew);
                     if (pieceType == 6) return true;
-                    
-                    // Pawn (Requires checking if it's diagonally in front)
                     if (pieceType == 1 && list[i] != 0 && list[j] != 0) {
-                        // Assuming y represents ranks. 
-                        // Modify the 1 and -1 depending on which way your white pawns move
                         int pawnAttackDir = isWhiteKing ? 1 : -1; 
-                        if (list[j] == pawnAttackDir) { 
-                            return true;
-                        }
+                        if (list[j] == pawnAttackDir) return true;
                     }
                 }
             }
         }
     }
     
-    // 2. Check for Knight
     const int moves[8][2] = {
         { 1,  2}, { 1, -2}, {-1,  2}, {-1, -2},
         { 2,  1}, { 2, -1}, {-2,  1}, {-2, -1}
@@ -59,60 +62,60 @@ bool isKingAttaked(GameState *board, uint x, uint y, bool isWhiteKing){
         int yNew = (int)y + moves[i][1];
         if (xNew >= 0 && xNew <= 7 && yNew >= 0 && yNew <= 7) {
             if (!isEmpty(board, xNew, yNew) && isWhiteKing != isWhite(board, xNew, yNew)) {
-                if (board->grid[yNew][xNew] % 10 == 2) return true;
+                if (getRank(board, xNew, yNew) == 2) return true;
             }
         }
     }
     
-    // 3. Check for Rook / Queen (Straights)
-    // up
     int xUp = (int)x + 1;
     for (; xUp < 8 && isEmpty(board, xUp, y); xUp++);
     if (xUp < 8) {
-        if (isWhiteKing != isWhite(board, xUp, y) && (board->grid[y][xUp] % 10 == 4 || board->grid[y][xUp] % 10 == 5)) return true;
+        if (isWhiteKing != isWhite(board, xUp, y) && (getRank(board, xUp, y) == 4 || getRank(board, xUp, y) == 5)) return true;
     }
     
-    // down
     int xDown = (int)x - 1;
     for (; xDown >= 0 && isEmpty(board, xDown, y); xDown--);
     if (xDown >= 0) {
-        if (isWhiteKing != isWhite(board, xDown, y) && (board->grid[y][xDown] % 10 == 4 || board->grid[y][xDown] % 10 == 5)) return true;
+        if (isWhiteKing != isWhite(board, xDown, y) && (getRank(board, xDown, y) == 4 || getRank(board, xDown, y) == 5)) return true;
     }
     
-    // left
     int yLeft = (int)y - 1;
     for (; yLeft >= 0 && isEmpty(board, x, yLeft); yLeft--);
     if (yLeft >= 0) {
-        if (isWhiteKing != isWhite(board, x, yLeft) && (board->grid[yLeft][x] % 10 == 4 || board->grid[yLeft][x] % 10 == 5)) return true;
+        if (isWhiteKing != isWhite(board, x, yLeft) && (getRank(board, x, yLeft) == 4 || getRank(board, x, yLeft) == 5)) return true;
     }
     
-    // right
     int yRight = (int)y + 1;
     for (; yRight < 8 && isEmpty(board, x, yRight); yRight++);
     if (yRight < 8) {
-        if (isWhiteKing != isWhite(board, x, yRight) && (board->grid[yRight][x] % 10 == 4 || board->grid[yRight][x] % 10 == 5)) return true;
+        if (isWhiteKing != isWhite(board, x, yRight) && (getRank(board, x, yRight) == 4 || getRank(board, x, yRight) == 5)) return true;
     }
 
-    // 4. Check for Bishop / Queen (Diagonals)
     int xNewtr, yNewtr;
     for (xNewtr = x + 1, yNewtr = y + 1; (xNewtr < 8 && yNewtr < 8) && isEmpty(board, xNewtr, yNewtr); xNewtr++, yNewtr++);
-    if ((xNewtr < 8 && yNewtr < 8) && isWhiteKing != isWhite(board, xNewtr, yNewtr) && (board->grid[yNewtr][xNewtr] % 10 == 3 || board->grid[yNewtr][xNewtr] % 10 == 5)) return true;
+    if ((xNewtr < 8 && yNewtr < 8) && isWhiteKing != isWhite(board, xNewtr, yNewtr) && (getRank(board, xNewtr, yNewtr) == 3 || getRank(board, xNewtr, yNewtr) == 5)) return true;
 
     int xNewtl, yNewtl;
     for (xNewtl = x + 1, yNewtl = y - 1; (xNewtl < 8 && yNewtl > -1) && isEmpty(board, xNewtl, yNewtl); xNewtl++, yNewtl--);
-    if ((xNewtl < 8 && yNewtl > -1) && isWhiteKing != isWhite(board, xNewtl, yNewtl) && (board->grid[yNewtl][xNewtl] % 10 == 3 || board->grid[yNewtl][xNewtl] % 10 == 5)) return true;
+    if ((xNewtl < 8 && yNewtl > -1) && isWhiteKing != isWhite(board, xNewtl, yNewtl) && (getRank(board, xNewtl, yNewtl) == 3 || getRank(board, xNewtl, yNewtl) == 5)) return true;
 
     int xNewdr, yNewdr;
     for (xNewdr = x - 1, yNewdr = y + 1; (xNewdr > -1 && yNewdr < 8) && isEmpty(board, xNewdr, yNewdr); xNewdr--, yNewdr++);
-    if ((xNewdr > -1 && yNewdr < 8) && isWhiteKing != isWhite(board, xNewdr, yNewdr) && (board->grid[yNewdr][xNewdr] % 10 == 3 || board->grid[yNewdr][xNewdr] % 10 == 5)) return true;
+    if ((xNewdr > -1 && yNewdr < 8) && isWhiteKing != isWhite(board, xNewdr, yNewdr) && (getRank(board, xNewdr, yNewdr) == 3 || getRank(board, xNewdr, yNewdr) == 5)) return true;
 
     int xNewdl, yNewdl;
     for (xNewdl = x - 1, yNewdl = y - 1; (xNewdl > -1 && yNewdl > -1) && isEmpty(board, xNewdl, yNewdl); xNewdl--, yNewdl--);
-    if ((xNewdl > -1 && yNewdl > -1) && isWhiteKing != isWhite(board, xNewdl, yNewdl) && (board->grid[yNewdl][xNewdl] % 10 == 3 || board->grid[yNewdl][xNewdl] % 10 == 5)) return true;
+    if ((xNewdl > -1 && yNewdl > -1) && isWhiteKing != isWhite(board, xNewdl, yNewdl) && (getRank(board, xNewdl, yNewdl) == 3 || getRank(board, xNewdl, yNewdl) == 5)) return true;
     
     return false;
 }
 
+bool iscastling(GameState *board,mouve *m){
+    uint dest=board->grid[m->yEnd][m->xEnd];
+    if(dest != EMPTY && getRankPiece(dest)!=4)return false;
+    uint start=board->grid[m->yStart][m->xStart];
+    return false;
+}
 
 bool CheckWhitePawn(GameState *board, mouve *m) {
     if (m->xEnd==m->xStart && m->yEnd==m->yStart) return false;
@@ -127,6 +130,7 @@ bool CheckWhitePawn(GameState *board, mouve *m) {
 
     return false;
 }
+
 bool CheckBlackPawn(GameState *board, mouve *m) {
     bool emptyEnd=isEmpty(board, m->xEnd, m->yEnd);
     if (m->xEnd==m->xStart && m->yEnd==m->yStart) return false;
@@ -170,6 +174,7 @@ bool CheckWhiteRook(GameState *board, mouve *m) {
     }
     return false;
 }
+
 bool CheckBlackRook(GameState *board, mouve *m) {
     if (m->xEnd != m->xStart && m->yEnd != m->yStart) return false;
     if (m->xEnd == m->xStart && m->yEnd == m->yStart) return false;
@@ -220,11 +225,11 @@ bool CheckWhiteBishop(GameState *board, mouve *m) {
         y += stepY;
     }
 
-    // FIXED: Ensure the White Bishop can only capture Black pieces
     if (isEmpty(board, m->xEnd, m->yEnd) || !isWhite(board, m->xEnd, m->yEnd)) return true;
 
     return false; 
 }
+
 bool CheckBlackBishop(GameState *board, mouve *m) {
     if (m->xEnd == m->xStart || m->yEnd == m->yStart) return false;
     
@@ -251,7 +256,6 @@ bool CheckBlackBishop(GameState *board, mouve *m) {
 }
 
 bool CheckWhiteKnight(GameState *board, mouve *m) {
-    // FIXED: Ensure the Knight doesn't move straight
     if (m->xEnd == m->xStart || m->yEnd == m->yStart) return false;
     
     uint difx = m->xStart > m->xEnd ? m->xStart - m->xEnd : m->xEnd - m->xStart;
@@ -260,6 +264,7 @@ bool CheckWhiteKnight(GameState *board, mouve *m) {
     if (isEmpty(board,m->xEnd,m->yEnd)||!isWhite(board,m->xEnd,m->yEnd)) return true;
     return false; 
 }
+
 bool CheckBlackKnight(GameState *board, mouve *m) {
     if (m->xEnd == m->xStart || m->yEnd == m->yStart) return false;
     uint difx = m->xStart > m->xEnd ? m->xStart - m->xEnd : m->xEnd - m->xStart;
@@ -272,13 +277,12 @@ bool CheckBlackKnight(GameState *board, mouve *m) {
 bool CheckWhiteQueen(GameState *board, mouve *m) {
     return CheckWhiteRook(board,m)||CheckWhiteBishop(board,m); 
 }
+
 bool CheckBlackQueen(GameState *board, mouve *m) {
-    // FIXED: Use the black piece checkers instead of the white ones
     return CheckBlackRook(board,m)||CheckBlackBishop(board,m); 
 }
 
 bool CheckWhiteKing(GameState *board, mouve *m) {
-    // FIXED: Added the check so the White King cannot move into an attacked square
     if (isKingAttaked(board, m->xEnd, m->yEnd, true)) return false;
     
     uint difx = m->xStart > m->xEnd ? m->xStart - m->xEnd : m->xEnd - m->xStart;
@@ -288,6 +292,7 @@ bool CheckWhiteKing(GameState *board, mouve *m) {
     }
     return false; 
 }
+
 bool CheckBlackKing(GameState *board, mouve *m) {
     if (isKingAttaked(board,m->xEnd,m->yEnd,isWhite(board,m->xStart,m->yStart))) return false;
     uint difx = m->xStart > m->xEnd ? m->xStart - m->xEnd : m->xEnd - m->xStart;
@@ -299,10 +304,10 @@ bool CheckBlackKing(GameState *board, mouve *m) {
 }
 
 bool CheckMouve(GameState *board, mouve *m) {
+    if (isEmpty(board, m->xStart, m->yStart)) return false;
     uint startpiece = board->grid[m->yStart][m->xStart];
 
-    if (startpiece == 0 || (startpiece / 10 != 2 && startpiece / 10 != 1)) return false;
-    if (startpiece / 10 != (m->isWhite ? 1 : 2)) return false;
+    if (isWhite(board, m->xStart, m->yStart) != m->isWhite) return false;
 
     switch (startpiece) {
     case B_PAWN:   return CheckBlackPawn(board, m);

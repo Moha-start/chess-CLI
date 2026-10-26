@@ -5,169 +5,176 @@
 #include "bord.h"
 
 /**
- * Returns true if the square at (x, y) is empty.
+ * Returns the rank value stored in a board cell.
  *
- * @param board The chess board to inspect.
- * @param x The horizontal coordinate of the square.
- * @param y The vertical coordinate of the square.
- * @return true if the square contains no piece; otherwise false.
+ * @param board Pointer to the current game state.
+ * @param x Column index of the square.
+ * @param y Row index of the square.
+ * @return Piece rank in the range 0..9, or 0 for an empty square.
+ */
+uint getRank(GameState *board, uint x, uint y);
+
+/**
+ * Extracts the rank portion of a packed chess piece value.
+ *
+ * @param piece Encoded piece value from the board grid.
+ * @return Piece rank without its color byte.
+ */
+uint getRankPiece(uint piece);
+
+/**
+ * Tests whether a square is empty.
+ *
+ * @param board Pointer to the current game state.
+ * @param x Column index of the square.
+ * @param y Row index of the square.
+ * @return true if the target square contains no piece.
  */
 bool isEmpty(GameState *board, uint x, uint y);
 
 /**
- * Determines whether the piece on the square at (x, y) belongs to White.
+ * Determines whether the piece on a square belongs to White.
  *
- * This function expects the square to contain a piece. If the square is empty,
- * it prints an error and exits the program.
- *
- * @param board The chess board to inspect.
- * @param x The horizontal coordinate of the square.
- * @param y The vertical coordinate of the square.
- * @return true if the piece is white; false if it is black.
+ * @param board Pointer to the current game state.
+ * @param x Column index of the square.
+ * @param y Row index of the square.
+ * @return true if the square contains a white piece.
  */
 bool isWhite(GameState *board, uint x, uint y);
 
 /**
- * Checks whether the king located at (x, y) is currently under attack.
+ * Determines whether a packed piece value belongs to White.
  *
- * The attack detection considers adjacent kings, pawns, knights, rook/queen
- * lines, and bishop/queen diagonals for the opponent's side.
+ * @param piece Encoded piece value.
+ * @return true if the piece is white.
+ */
+bool isWhitePiece(uint piece);
+
+/**
+ * Checks whether the king at (x, y) is attacked by an opposing piece.
  *
- * @param board The chess board to inspect.
- * @param x The king's x coordinate.
- * @param y The king's y coordinate.
- * @param isWhiteKing true if the king being checked is white, false otherwise.
- * @return true if the king is in check; false otherwise.
+ * @param board Pointer to the current game state.
+ * @param x Column index of the king.
+ * @param y Row index of the king.
+ * @param isWhiteKing true when validating a white king; false for a black king.
+ * @return true if the king is in check.
  */
 bool isKingAttaked(GameState *board, uint x, uint y, bool isWhiteKing);
 
 /**
- * Validates a white pawn move described by m.
+ * Validates a legal white pawn move for the given move descriptor.
  *
- * @param board The chess board.
- * @param m Pointer to the move structure containing start and end coordinates.
- * @return true if the move follows white pawn rules; false otherwise.
+ * @param board Pointer to the current game state.
+ * @param m Move description to validate.
+ * @return true if the move matches the rules for a white pawn.
  */
 bool CheckWhitePawn(GameState *board, mouve *m);
 
 /**
- * Validates a black pawn move described by m.
+ * Validates a legal black pawn move for the given move descriptor.
  *
- * @param board The chess board.
- * @param m Pointer to the move structure containing start and end coordinates.
- * @return true if the move follows black pawn rules; false otherwise.
+ * @param board Pointer to the current game state.
+ * @param m Move description to validate.
+ * @return true if the move matches the rules for a black pawn.
  */
 bool CheckBlackPawn(GameState *board, mouve *m);
 
 /**
- * Validates a white knight move described by m.
+ * Validates a legal white knight move for the given move descriptor.
  *
- * @param board The chess board.
- * @param m Pointer to the move structure containing start and end coordinates.
- * @return true if the move follows white knight rules; false otherwise.
+ * @param board Pointer to the current game state.
+ * @param m Move description to validate.
+ * @return true if the move matches the rules for a white knight.
  */
 bool CheckWhiteKnight(GameState *board, mouve *m);
 
 /**
- * Validates a black knight move described by m.
+ * Validates a legal black knight move for the given move descriptor.
  *
- * @param board The chess board.
- * @param m Pointer to the move structure containing start and end coordinates.
- * @return true if the move follows black knight rules; false otherwise.
+ * @param board Pointer to the current game state.
+ * @param m Move description to validate.
+ * @return true if the move matches the rules for a black knight.
  */
 bool CheckBlackKnight(GameState *board, mouve *m);
 
 /**
- * Validates a white bishop move described by m.
+ * Validates a legal white bishop move for the given move descriptor.
  *
- * @param board The chess board.
- * @param m Pointer to the move structure containing start and end coordinates.
- * @return true if the move follows white bishop rules; false otherwise.
+ * @param board Pointer to the current game state.
+ * @param m Move description to validate.
+ * @return true if the move matches the rules for a white bishop.
  */
 bool CheckWhiteBishop(GameState *board, mouve *m);
 
 /**
- * Validates a black bishop move described by m.
+ * Validates a legal black bishop move for the given move descriptor.
  *
- * @param board The chess board.
- * @param m Pointer to the move structure containing start and end coordinates.
- * @return true if the move follows black bishop rules; false otherwise.
+ * @param board Pointer to the current game state.
+ * @param m Move description to validate.
+ * @return true if the move matches the rules for a black bishop.
  */
 bool CheckBlackBishop(GameState *board, mouve *m);
 
 /**
- * Validates a white rook move described by m.
+ * Validates a legal white rook move for the given move descriptor.
  *
- * @param board The chess board.
- * @param m Pointer to the move structure containing start and end coordinates.
- * @return true if the move follows white rook rules; false otherwise.
+ * @param board Pointer to the current game state.
+ * @param m Move description to validate.
+ * @return true if the move matches the rules for a white rook.
  */
 bool CheckWhiteRook(GameState *board, mouve *m);
 
 /**
- * Validates a black rook move described by m.
+ * Validates a legal black rook move for the given move descriptor.
  *
- * @param board The chess board.
- * @param m Pointer to the move structure containing start and end coordinates.
- * @return true if the move follows black rook rules; false otherwise.
+ * @param board Pointer to the current game state.
+ * @param m Move description to validate.
+ * @return true if the move matches the rules for a black rook.
  */
 bool CheckBlackRook(GameState *board, mouve *m);
 
 /**
- * Validates a white queen move described by m.
+ * Validates a legal white queen move for the given move descriptor.
  *
- * A queen is allowed to move like a rook or a bishop.
- *
- * @param board The chess board.
- * @param m Pointer to the move structure containing start and end coordinates.
- * @return true if the move follows white queen rules; false otherwise.
+ * @param board Pointer to the current game state.
+ * @param m Move description to validate.
+ * @return true if the move matches the rules for a white queen.
  */
 bool CheckWhiteQueen(GameState *board, mouve *m);
 
 /**
- * Validates a black queen move described by m.
+ * Validates a legal black queen move for the given move descriptor.
  *
- * A queen is allowed to move like a rook or a bishop.
- *
- * @param board The chess board.
- * @param m Pointer to the move structure containing start and end coordinates.
- * @return true if the move follows black queen rules; false otherwise.
+ * @param board Pointer to the current game state.
+ * @param m Move description to validate.
+ * @return true if the move matches the rules for a black queen.
  */
 bool CheckBlackQueen(GameState *board, mouve *m);
 
 /**
- * Validates a white king move described by m.
+ * Validates a legal white king move for the given move descriptor.
  *
- * A king may move one square in any direction, provided the destination is not
- * under attack by the opponent.
- *
- * @param board The chess board.
- * @param m Pointer to the move structure containing start and end coordinates.
- * @return true if the move follows white king rules; false otherwise.
+ * @param board Pointer to the current game state.
+ * @param m Move description to validate.
+ * @return true if the move matches the rules for a white king.
  */
 bool CheckWhiteKing(GameState *board, mouve *m);
 
 /**
- * Validates a black king move described by m.
+ * Validates a legal black king move for the given move descriptor.
  *
- * A king may move one square in any direction, provided the destination is not
- * under attack by the opponent.
- *
- * @param board The chess board.
- * @param m Pointer to the move structure containing start and end coordinates.
- * @return true if the move follows black king rules; false otherwise.
+ * @param board Pointer to the current game state.
+ * @param m Move description to validate.
+ * @return true if the move matches the rules for a black king.
  */
 bool CheckBlackKing(GameState *board, mouve *m);
 
 /**
- * Validates a move for the piece currently located at the starting square.
+ * Checks whether a move is legal according to the board rules.
  *
- * The function checks the piece type, verifies that the move matches the color
- * of the player, and delegates to the appropriate piece-specific validation.
- *
- * @param board The chess board.
- * @param m Pointer to the move structure describing the attempted move.
- * @return true if the move is legal for the piece and color; false otherwise.
+ * @param board Pointer to the current game state.
+ * @param m Move description to validate.
+ * @return true if the supplied move is valid for the current position.
  */
 bool CheckMouve(GameState *board, mouve *m);
 

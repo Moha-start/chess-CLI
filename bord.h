@@ -24,6 +24,8 @@ typedef unsigned int uint;
 typedef struct {
     uint **grid;
     uint emptyPieces[2][13];
+    bool KingMouved[2];
+    bool rookmouved[2][2];
 } GameState;
 
 typedef struct{

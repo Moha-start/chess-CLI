@@ -14,6 +14,7 @@ GameState *CreateNullBoard(void) {
     memset(state->emptyPieces, 0, sizeof(state->emptyPieces));
 
     state->grid = malloc(8 * sizeof(*state->grid));
+
     if (state->grid == NULL) {
         fprintf(stderr, "Out of memory\n");
         free(state);
@@ -37,10 +38,13 @@ GameState *CreateNullBoard(void) {
 void FreeBoard(GameState *state) {
     if (state == NULL) return;
 
-    for (int i = 0; i < 8; i++) {
-        free(state->grid[i]);
+    if (state->grid != NULL) {
+        for (int i = 0; i < 8; i++) {
+            free(state->grid[i]);
+        }
+        free(state->grid);
     }
-    free(state->grid);
+    
     free(state);
 }
 
@@ -49,7 +53,7 @@ void InitiliseBoard(GameState *state) {
         fprintf(stderr, "giving a null pointer\n");
         exit(EXIT_FAILURE);
     }
-
+    
     for (unsigned int i = 2; i < 6; i++) {
         for (unsigned int k = 0; k < 8; k++) {
             state->grid[i][k] = EMPTY;
@@ -81,6 +85,12 @@ void InitiliseBoard(GameState *state) {
 
     state->grid[0][4] = B_KING;
     state->grid[7][4] = W_KING;
+    state->KingMouved[0] = false;
+    state->KingMouved[1] = false;
+    state->rookmouved[0][0]=false;
+    state->rookmouved[0][1]=false;
+    state->rookmouved[1][0]=false;
+    state->rookmouved[1][1]=false;
 }
 
 char PieceToChar(uint piece) {
@@ -170,14 +180,23 @@ void printmouve(GameState *state, mouve *m) {
 
 bool Mouve(GameState *state, mouve *m) {
     if (!CheckMouve(state, m)) return false;
-    uint dest=state->grid[m->yEnd][m->xEnd];
-    if (dest!=EMPTY){
-        uint color=(dest / 10 == 1) ? 0 : 1;
-        uint piece=dest%10;
+    uint start = state->grid[m->yStart][m->xStart];
+    uint dest = state->grid[m->yEnd][m->xEnd];
+    if (!isEmpty(state, m->xEnd, m->yEnd)){
+        uint color = isWhitePiece(dest) ? 0 : 1;
+        uint piece = getRankPiece(dest);
         state->emptyPieces[color][piece]++;
     }
-    state->grid[m->yEnd][m->xEnd]=state->grid[m->yStart][m->xStart];
-    state->grid[m->yStart][m->xStart]=EMPTY;
+    
+    uint color = isWhite(state, m->xStart, m->yStart) ? 0 : 1;
+    if (getRankPiece(start) == 6 && !state->KingMouved[color]) state->KingMouved[color] = true;
+    if (getRankPiece(start) == 4){
+        uint pos = m->xStart / 7;
+        if (!state->rookmouved[color][pos]) state->rookmouved[color][pos] = true;
+    }
+
+    state->grid[m->yEnd][m->xEnd] = start;
+    state->grid[m->yStart][m->xStart] = EMPTY;
     
     return true; 
 }
