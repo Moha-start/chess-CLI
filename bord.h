@@ -21,8 +21,10 @@ enum pieces
 };
 typedef unsigned int uint;
 
-// Represent the board directly as a 2D dynamically allocated array
-typedef uint **Board;
+typedef struct {
+    uint **grid;
+    uint emptyPieces[2][13];
+} GameState;
 
 typedef struct{
     uint xStart;
@@ -33,17 +35,17 @@ typedef struct{
 } mouve;
 
 // Board allocation and lifecycle
-Board CreateNullBoard(void);
-void FreeBoard(Board board);
-void InitiliseBoard(Board board);
+GameState *CreateNullBoard(void);
+void FreeBoard(GameState *state);
+void InitiliseBoard(GameState *state);
 char PieceToChar(uint piece);
-void PrintBoard(Board board);
+void PrintBoard(GameState *state);
 uint FromChartoUint(char c);
 char FromUintToChar(uint n);
 
 // Move operations
 mouve *getMouve(bool isWhite);
-void printmouve(Board board, mouve *m);
-bool Mouve(Board board, mouve *m);
+void printmouve(GameState *state, mouve *m);
+bool Mouve(GameState *state, mouve *m);
 
 #endif // BORD_H

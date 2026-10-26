@@ -3,12 +3,12 @@
 #include <stdbool.h>
 #include "check.h"
 
-bool isEmpty(Board board, uint x, uint y) {
-    return board[y][x] == EMPTY;
+bool isEmpty(GameState *board, uint x, uint y) {
+    return board->grid[y][x] == EMPTY;
 }
 
-bool isWhite(Board board, uint x, uint y) {
-    uint piece = board[y][x];
+bool isWhite(GameState *board, uint x, uint y) {
+    uint piece = board->grid[y][x];
     if (piece == 0) {
         fprintf(stderr, "there is no color for an empty place");
         exit(EXIT_FAILURE);
@@ -16,7 +16,7 @@ bool isWhite(Board board, uint x, uint y) {
     return piece / 10 == 1 ? true : false;
 }
 
-bool isKingAttaked(Board board, uint x, uint y, bool isWhiteKing){
+bool isKingAttaked(GameState *board, uint x, uint y, bool isWhiteKing){
     // 1. Check for 1-step pieces (King and Pawn)
     int list[3] = {-1, 0, 1};
     for (uint i = 0; i < 3; i++) {
@@ -29,7 +29,7 @@ bool isKingAttaked(Board board, uint x, uint y, bool isWhiteKing){
             if (xNew >= 0 && xNew <= 7 && yNew >= 0 && yNew <= 7) {
                 // Check if piece exists and is of the opposite color
                 if (!isEmpty(board, xNew, yNew) && isWhiteKing != isWhite(board, xNew, yNew)) {
-                    int pieceType = board[yNew][xNew] % 10;
+                    int pieceType = board->grid[yNew][xNew] % 10;
                     
                     // King
                     if (pieceType == 6) return true;
@@ -59,7 +59,7 @@ bool isKingAttaked(Board board, uint x, uint y, bool isWhiteKing){
         int yNew = (int)y + moves[i][1];
         if (xNew >= 0 && xNew <= 7 && yNew >= 0 && yNew <= 7) {
             if (!isEmpty(board, xNew, yNew) && isWhiteKing != isWhite(board, xNew, yNew)) {
-                if (board[yNew][xNew] % 10 == 2) return true;
+                if (board->grid[yNew][xNew] % 10 == 2) return true;
             }
         }
     }
@@ -69,52 +69,52 @@ bool isKingAttaked(Board board, uint x, uint y, bool isWhiteKing){
     int xUp = (int)x + 1;
     for (; xUp < 8 && isEmpty(board, xUp, y); xUp++);
     if (xUp < 8) {
-        if (isWhiteKing != isWhite(board, xUp, y) && (board[y][xUp] % 10 == 4 || board[y][xUp] % 10 == 5)) return true;
+        if (isWhiteKing != isWhite(board, xUp, y) && (board->grid[y][xUp] % 10 == 4 || board->grid[y][xUp] % 10 == 5)) return true;
     }
     
     // down
     int xDown = (int)x - 1;
     for (; xDown >= 0 && isEmpty(board, xDown, y); xDown--);
     if (xDown >= 0) {
-        if (isWhiteKing != isWhite(board, xDown, y) && (board[y][xDown] % 10 == 4 || board[y][xDown] % 10 == 5)) return true;
+        if (isWhiteKing != isWhite(board, xDown, y) && (board->grid[y][xDown] % 10 == 4 || board->grid[y][xDown] % 10 == 5)) return true;
     }
     
     // left
     int yLeft = (int)y - 1;
     for (; yLeft >= 0 && isEmpty(board, x, yLeft); yLeft--);
     if (yLeft >= 0) {
-        if (isWhiteKing != isWhite(board, x, yLeft) && (board[yLeft][x] % 10 == 4 || board[yLeft][x] % 10 == 5)) return true;
+        if (isWhiteKing != isWhite(board, x, yLeft) && (board->grid[yLeft][x] % 10 == 4 || board->grid[yLeft][x] % 10 == 5)) return true;
     }
     
     // right
     int yRight = (int)y + 1;
     for (; yRight < 8 && isEmpty(board, x, yRight); yRight++);
     if (yRight < 8) {
-        if (isWhiteKing != isWhite(board, x, yRight) && (board[yRight][x] % 10 == 4 || board[yRight][x] % 10 == 5)) return true;
+        if (isWhiteKing != isWhite(board, x, yRight) && (board->grid[yRight][x] % 10 == 4 || board->grid[yRight][x] % 10 == 5)) return true;
     }
 
     // 4. Check for Bishop / Queen (Diagonals)
     int xNewtr, yNewtr;
     for (xNewtr = x + 1, yNewtr = y + 1; (xNewtr < 8 && yNewtr < 8) && isEmpty(board, xNewtr, yNewtr); xNewtr++, yNewtr++);
-    if ((xNewtr < 8 && yNewtr < 8) && isWhiteKing != isWhite(board, xNewtr, yNewtr) && (board[yNewtr][xNewtr] % 10 == 3 || board[yNewtr][xNewtr] % 10 == 5)) return true; 
+    if ((xNewtr < 8 && yNewtr < 8) && isWhiteKing != isWhite(board, xNewtr, yNewtr) && (board->grid[yNewtr][xNewtr] % 10 == 3 || board->grid[yNewtr][xNewtr] % 10 == 5)) return true;
 
     int xNewtl, yNewtl;
     for (xNewtl = x + 1, yNewtl = y - 1; (xNewtl < 8 && yNewtl > -1) && isEmpty(board, xNewtl, yNewtl); xNewtl++, yNewtl--);
-    if ((xNewtl < 8 && yNewtl > -1) && isWhiteKing != isWhite(board, xNewtl, yNewtl) && (board[yNewtl][xNewtl] % 10 == 3 || board[yNewtl][xNewtl] % 10 == 5)) return true; 
+    if ((xNewtl < 8 && yNewtl > -1) && isWhiteKing != isWhite(board, xNewtl, yNewtl) && (board->grid[yNewtl][xNewtl] % 10 == 3 || board->grid[yNewtl][xNewtl] % 10 == 5)) return true;
 
     int xNewdr, yNewdr;
     for (xNewdr = x - 1, yNewdr = y + 1; (xNewdr > -1 && yNewdr < 8) && isEmpty(board, xNewdr, yNewdr); xNewdr--, yNewdr++);
-    if ((xNewdr > -1 && yNewdr < 8) && isWhiteKing != isWhite(board, xNewdr, yNewdr) && (board[yNewdr][xNewdr] % 10 == 3 || board[yNewdr][xNewdr] % 10 == 5)) return true; 
+    if ((xNewdr > -1 && yNewdr < 8) && isWhiteKing != isWhite(board, xNewdr, yNewdr) && (board->grid[yNewdr][xNewdr] % 10 == 3 || board->grid[yNewdr][xNewdr] % 10 == 5)) return true;
 
     int xNewdl, yNewdl;
     for (xNewdl = x - 1, yNewdl = y - 1; (xNewdl > -1 && yNewdl > -1) && isEmpty(board, xNewdl, yNewdl); xNewdl--, yNewdl--);
-    if ((xNewdl > -1 && yNewdl > -1) && isWhiteKing != isWhite(board, xNewdl, yNewdl) && (board[yNewdl][xNewdl] % 10 == 3 || board[yNewdl][xNewdl] % 10 == 5)) return true; 
+    if ((xNewdl > -1 && yNewdl > -1) && isWhiteKing != isWhite(board, xNewdl, yNewdl) && (board->grid[yNewdl][xNewdl] % 10 == 3 || board->grid[yNewdl][xNewdl] % 10 == 5)) return true;
     
     return false;
 }
 
 
-bool CheckWhitePawn(Board board, mouve *m) {
+bool CheckWhitePawn(GameState *board, mouve *m) {
     if (m->xEnd==m->xStart && m->yEnd==m->yStart) return false;
     bool emptyEnd=isEmpty(board, m->xEnd, m->yEnd);
 
@@ -127,7 +127,7 @@ bool CheckWhitePawn(Board board, mouve *m) {
 
     return false;
 }
-bool CheckBlackPawn(Board board, mouve *m) {
+bool CheckBlackPawn(GameState *board, mouve *m) {
     bool emptyEnd=isEmpty(board, m->xEnd, m->yEnd);
     if (m->xEnd==m->xStart && m->yEnd==m->yStart) return false;
 
@@ -141,7 +141,7 @@ bool CheckBlackPawn(Board board, mouve *m) {
     return false;
 }
 
-bool CheckWhiteRook(Board board, mouve *m) {
+bool CheckWhiteRook(GameState *board, mouve *m) {
     if (m->xEnd != m->xStart && m->yEnd != m->yStart) return false;
     if (m->xEnd == m->xStart && m->yEnd == m->yStart) return false;
     
@@ -170,7 +170,7 @@ bool CheckWhiteRook(Board board, mouve *m) {
     }
     return false;
 }
-bool CheckBlackRook(Board board, mouve *m) {
+bool CheckBlackRook(GameState *board, mouve *m) {
     if (m->xEnd != m->xStart && m->yEnd != m->yStart) return false;
     if (m->xEnd == m->xStart && m->yEnd == m->yStart) return false;
     
@@ -200,7 +200,7 @@ bool CheckBlackRook(Board board, mouve *m) {
     return false;
 }
 
-bool CheckWhiteBishop(Board board, mouve *m) { 
+bool CheckWhiteBishop(GameState *board, mouve *m) {
     if (m->xEnd == m->xStart || m->yEnd == m->yStart) return false;
     
     uint difx = m->xStart > m->xEnd ? m->xStart - m->xEnd : m->xEnd - m->xStart;
@@ -225,7 +225,7 @@ bool CheckWhiteBishop(Board board, mouve *m) {
 
     return false; 
 }
-bool CheckBlackBishop(Board board, mouve *m) {
+bool CheckBlackBishop(GameState *board, mouve *m) {
     if (m->xEnd == m->xStart || m->yEnd == m->yStart) return false;
     
     uint difx = m->xStart > m->xEnd ? m->xStart - m->xEnd : m->xEnd - m->xStart;
@@ -250,7 +250,7 @@ bool CheckBlackBishop(Board board, mouve *m) {
     return false; 
 }
 
-bool CheckWhiteKnight(Board board, mouve *m) { 
+bool CheckWhiteKnight(GameState *board, mouve *m) {
     // FIXED: Ensure the Knight doesn't move straight
     if (m->xEnd == m->xStart || m->yEnd == m->yStart) return false;
     
@@ -260,7 +260,7 @@ bool CheckWhiteKnight(Board board, mouve *m) {
     if (isEmpty(board,m->xEnd,m->yEnd)||!isWhite(board,m->xEnd,m->yEnd)) return true;
     return false; 
 }
-bool CheckBlackKnight(Board board, mouve *m) { 
+bool CheckBlackKnight(GameState *board, mouve *m) {
     if (m->xEnd == m->xStart || m->yEnd == m->yStart) return false;
     uint difx = m->xStart > m->xEnd ? m->xStart - m->xEnd : m->xEnd - m->xStart;
     uint dify = m->yStart > m->yEnd ? m->yStart - m->yEnd : m->yEnd - m->yStart;
@@ -269,15 +269,15 @@ bool CheckBlackKnight(Board board, mouve *m) {
     return false; 
 }
 
-bool CheckWhiteQueen(Board board, mouve *m) { 
+bool CheckWhiteQueen(GameState *board, mouve *m) {
     return CheckWhiteRook(board,m)||CheckWhiteBishop(board,m); 
 }
-bool CheckBlackQueen(Board board, mouve *m) { 
+bool CheckBlackQueen(GameState *board, mouve *m) {
     // FIXED: Use the black piece checkers instead of the white ones
     return CheckBlackRook(board,m)||CheckBlackBishop(board,m); 
 }
 
-bool CheckWhiteKing(Board board, mouve *m) { 
+bool CheckWhiteKing(GameState *board, mouve *m) {
     // FIXED: Added the check so the White King cannot move into an attacked square
     if (isKingAttaked(board, m->xEnd, m->yEnd, true)) return false;
     
@@ -288,7 +288,7 @@ bool CheckWhiteKing(Board board, mouve *m) {
     }
     return false; 
 }
-bool CheckBlackKing(Board board, mouve *m) {
+bool CheckBlackKing(GameState *board, mouve *m) {
     if (isKingAttaked(board,m->xEnd,m->yEnd,isWhite(board,m->xStart,m->yStart))) return false;
     uint difx = m->xStart > m->xEnd ? m->xStart - m->xEnd : m->xEnd - m->xStart;
     uint dify = m->yStart > m->yEnd ? m->yStart - m->yEnd : m->yEnd - m->yStart;
@@ -298,8 +298,8 @@ bool CheckBlackKing(Board board, mouve *m) {
     return false; 
 }
 
-bool CheckMouve(Board board, mouve *m) {
-    uint startpiece = board[m->yStart][m->xStart]; 
+bool CheckMouve(GameState *board, mouve *m) {
+    uint startpiece = board->grid[m->yStart][m->xStart];
 
     if (startpiece == 0 || (startpiece / 10 != 2 && startpiece / 10 != 1)) return false;
     if (startpiece / 10 != (m->isWhite ? 1 : 2)) return false;

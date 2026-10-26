@@ -1,76 +1,86 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "bord.h"
 #include "check.h"
 
-Board CreateNullBoard(void) {
-    uint **board = malloc(8 * sizeof(uint *));
-    if (board == NULL) {
+GameState *CreateNullBoard(void) {
+    GameState *state = malloc(sizeof(*state));
+    if (state == NULL) {
         fprintf(stderr, "Out of memory\n");
         exit(EXIT_FAILURE);
     }
+    memset(state->emptyPieces, 0, sizeof(state->emptyPieces));
 
+    state->grid = malloc(8 * sizeof(*state->grid));
+    if (state->grid == NULL) {
+        fprintf(stderr, "Out of memory\n");
+        free(state);
+        exit(EXIT_FAILURE);
+    }
     for (unsigned int i = 0; i < 8; i++) {
-        board[i] = malloc(8 * sizeof(uint));
-        if (board[i] == NULL) {
+        state->grid[i] = malloc(8 * sizeof(*state->grid[i]));
+        if (state->grid[i] == NULL) {
             fprintf(stderr, "Out of memory\n");
             for (unsigned int j = 0; j < i; j++) {
-                free(board[j]);
+                free(state->grid[j]);
             }
-            free(board);
+            free(state->grid);
+            free(state);
             exit(EXIT_FAILURE);
         }
     }
-    return board;
+    return state;
 }
 
-void FreeBoard(Board board) {
-    if (board == NULL) return;
+void FreeBoard(GameState *state) {
+    if (state == NULL) return;
 
     for (int i = 0; i < 8; i++) {
-        free(board[i]);
+        free(state->grid[i]);
     }
-    free(board);
+    free(state->grid);
+    free(state);
 }
 
-void InitiliseBoard(Board board) {
-    if (board == NULL) {
+void InitiliseBoard(GameState *state) {
+    if (state == NULL) {
         fprintf(stderr, "giving a null pointer\n");
         exit(EXIT_FAILURE);
     }
 
     for (unsigned int i = 2; i < 6; i++) {
         for (unsigned int k = 0; k < 8; k++) {
-            board[i][k] = EMPTY;
+            state->grid[i][k] = EMPTY;
         }
     }
 
     for (unsigned int i = 0; i < 8; i++) {
-        board[1][i] = B_PAWN;
-        board[6][i] = W_PAWN;
+        state->grid[1][i] = B_PAWN;
+        state->grid[6][i] = W_PAWN;
     }
 
-    board[0][0] = B_ROOK;
-    board[0][7] = B_ROOK;
-    board[7][0] = W_ROOK;
-    board[7][7] = W_ROOK;
+    state->grid[0][0] = B_ROOK;
+    state->grid[0][7] = B_ROOK;
+    state->grid[7][0] = W_ROOK;
+    state->grid[7][7] = W_ROOK;
 
-    board[0][1] = B_KNIGHT;
-    board[0][6] = B_KNIGHT;
-    board[7][1] = W_KNIGHT;
-    board[7][6] = W_KNIGHT;
+    state->grid[0][1] = B_KNIGHT;
+    state->grid[0][6] = B_KNIGHT;
+    state->grid[7][1] = W_KNIGHT;
+    state->grid[7][6] = W_KNIGHT;
 
-    board[0][2] = B_BISHOP;
-    board[0][5] = B_BISHOP;
-    board[7][2] = W_BISHOP;
-    board[7][5] = W_BISHOP;
+    state->grid[0][2] = B_BISHOP;
+    state->grid[0][5] = B_BISHOP;
+    state->grid[7][2] = W_BISHOP;
+    state->grid[7][5] = W_BISHOP;
 
-    board[0][3] = B_QUEEN;
-    board[7][3] = W_QUEEN;
+    state->grid[0][3] = B_QUEEN;
+    state->grid[7][3] = W_QUEEN;
 
-    board[0][4] = B_KING;
-    board[7][4] = W_KING;
+    state->grid[0][4] = B_KING;
+    state->grid[7][4] = W_KING;
 }
 
 char PieceToChar(uint piece) {
@@ -92,13 +102,13 @@ char PieceToChar(uint piece) {
     }
 }
 
-void PrintBoard(Board board) {
+void PrintBoard(GameState *state) {
     printf("\n    A   B   C   D   E   F   G   H \n");
     printf("  +---+---+---+---+---+---+---+---+\n");
     for (uint i = 0; i < 8; i++) {
         printf("%d |", 8 - i);
         for (unsigned int k = 0; k < 8; k++) {
-            printf(" %c |", PieceToChar(board[i][k]));
+            printf(" %c |", PieceToChar(state->grid[i][k]));
         }
         printf(" %d\n", 8 - i);
     }
@@ -150,16 +160,29 @@ mouve *getMouve(bool isWhite) {
     return curent;
 }
 
-void printmouve(Board board, mouve *m) {
+void printmouve(GameState *state, mouve *m) {
     printf("your star position is %c,%u(%c)\n", 
-            FromUintToChar(m->xStart), 8 - m->yStart, PieceToChar(board[m->yStart][m->xStart]));
+            FromUintToChar(m->xStart), 8 - m->yStart, PieceToChar(state->grid[m->yStart][m->xStart]));
             
     printf("your end position is %c,%u(%c)\n", 
-            FromUintToChar(m->xEnd), 8 - m->yEnd, PieceToChar(board[m->yEnd][m->xEnd]));
+            FromUintToChar(m->xEnd), 8 - m->yEnd, PieceToChar(state->grid[m->yEnd][m->xEnd]));
 }
 
-bool Mouve(Board board, mouve *m) {
-    if (!CheckMouve(board, m)) return false;
+bool Mouve(GameState *state, mouve *m) {
+    if (!CheckMouve(state, m)) return false;
+    
+    uint destPiece = state->grid[m->yEnd][m->xEnd];
+    
+    // If there's a piece at the destination, register it as captured
+    if (destPiece != EMPTY) {
+        uint colorIdx = (destPiece / 10 == 1) ? 0 : 1; // 0 for White (11-16), 1 for Black (21-26)
+        uint pieceIdx = destPiece % 10;                // 1=Pawn, 2=Knight, 3=Bishop, 4=Rook, 5=Queen, 6=King
+        state->emptyPieces[colorIdx][pieceIdx]++;
+    }
+
+    // Execute the move
+    state->grid[m->yEnd][m->xEnd] = state->grid[m->yStart][m->xStart];
+    state->grid[m->yStart][m->xStart] = EMPTY;
+    
     return true; 
 }
-

@@ -6,7 +6,7 @@ It is built as a CMake project and includes a simple interactive CLI as well as 
 
 ## Features
 
-- 8x8 board representation using a dynamically allocated 2D array
+- Game state containing an 8x8 dynamically allocated board and a piece tracker
 - Standard chess piece values for black and white pieces
 - Board initialization for a full starting position
 - Move validation for pawns, knights, bishops, rooks, queens, and kings
@@ -86,7 +86,7 @@ This project is a chess logic prototype rather than a full chess game. It valida
 
 ## Notes on the implementation
 
-- The board is stored as a `uint **` matrix, with piece constants such as `W_KING`, `B_PAWN`, and `EMPTY` defined in `bord.h`.
+- The `GameState` structure in `bord.h` stores the board in its `grid` member and includes an `emptyPieces` tracker. Piece constants such as `W_KING`, `B_PAWN`, and `EMPTY` are defined there.
 - `CheckMouve()` dispatches to piece-specific validation functions in `check.c`.
 - `main.c` is a minimal CLI and is best treated as a demonstration harness for the move-validation logic.
 

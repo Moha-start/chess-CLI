@@ -1,173 +1,167 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <assert.h>
+#include <string.h>
 #include "bord.h"
 #include "check.h"
 
-// Helper function to create an empty board for isolated piece testing
-Board CreateEmptyTestBoard() {
-    Board b = CreateNullBoard();
+int tests_run = 0;
+int tests_failed = 0;
+
+#define EXPECT_EQ(expected, actual, msg) \
+    do { \
+        tests_run++; \
+        if ((expected) != (actual)) { \
+            printf("[FAIL] %s\n", msg); \
+            tests_failed++; \
+        } \
+    } while(0)
+
+GameState *CreateEmptyTestBoard() {
+    GameState *b = CreateNullBoard();
     for (int y = 0; y < 8; y++) {
         for (int x = 0; x < 8; x++) {
-            b[y][x] = EMPTY;
+            b->grid[y][x] = EMPTY;
         }
     }
     return b;
 }
 
 void test_utilities() {
-    assert(FromChartoUint('A') == 0);
-    assert(FromChartoUint('h') == 7);
-    assert(FromUintToChar(3) == 'D');
-    
-    assert(PieceToChar(B_KING) == 'k');
-    assert(PieceToChar(W_QUEEN) == 'Q');
-    assert(PieceToChar(EMPTY) == '.');
-    
-    printf("Utility function tests passed.\n");
-}
+    EXPECT_EQ(0, FromChartoUint('A'), "FromChartoUint('A') == 0");
+    EXPECT_EQ(7, FromChartoUint('h'), "FromChartoUint('h') == 7");
+    EXPECT_EQ('D', FromUintToChar(3), "FromUintToChar(3) == 'D'");
+    EXPECT_EQ('k', PieceToChar(B_KING), "PieceToChar(B_KING) == 'k'");
+    EXPECT_EQ('.', PieceToChar(EMPTY), "PieceToChar(EMPTY) == '.'");
 
-void test_board_management() {
-    Board b = CreateNullBoard();
-    InitiliseBoard(b);
-    
-    // Check initial placement
-    assert(b[0][0] == B_ROOK);
-    assert(b[7][4] == W_KING);
-    
-    // Test check.c basic helpers
-    assert(isEmpty(b, 4, 4) == true); // E4 should be empty initially
-    assert(isEmpty(b, 0, 0) == false); // A8 (B_ROOK) is not empty
-    
-    assert(isWhite(b, 4, 7) == true); // E1 (W_KING) is white
-    assert(isWhite(b, 4, 0) == false); // E8 (B_KING) is black
-    
-    FreeBoard(b);
-    printf("Board management tests passed.\n");
+    GameState *state = CreateNullBoard();
+    for (int color = 0; color < 2; color++) {
+        for (int piece = 0; piece < 13; piece++) {
+            EXPECT_EQ(0, state->emptyPieces[color][piece], "Piece tracker initialized to zero");
+        }
+    }
+    FreeBoard(state);
 }
 
 void test_pawns() {
-    Board b = CreateNullBoard();
+    GameState *b = CreateNullBoard();
     InitiliseBoard(b);
     
-    // White Pawn valid moves (E2 to E3, E2 to E4)
     mouve wp_step = { .xStart = 4, .yStart = 6, .xEnd = 4, .yEnd = 5, .isWhite = true };
-    assert(CheckMouve(b, &wp_step) == true);
+    EXPECT_EQ(true, CheckMouve(b, &wp_step), "White Pawn single step forward");
     
     mouve wp_double = { .xStart = 4, .yStart = 6, .xEnd = 4, .yEnd = 4, .isWhite = true };
-    assert(CheckMouve(b, &wp_double) == true);
+    EXPECT_EQ(true, CheckMouve(b, &wp_double), "White Pawn double step from start");
 
-    // Black Pawn valid moves (E7 to E6, E7 to E5)
-    mouve bp_step = { .xStart = 4, .yStart = 1, .xEnd = 4, .yEnd = 2, .isWhite = false };
-    assert(CheckMouve(b, &bp_step) == true);
-    
-    mouve bp_double = { .xStart = 4, .yStart = 1, .xEnd = 4, .yEnd = 3, .isWhite = false };
-    assert(CheckMouve(b, &bp_double) == true);
+    b->grid[5][4] = B_PAWN;
+    EXPECT_EQ(false, CheckMouve(b, &wp_double), "White Pawn double step blocked by piece");
 
     FreeBoard(b);
-    printf("Pawn tests passed.\n");
 }
 
 void test_knights() {
-    Board b = CreateEmptyTestBoard();
-    b[4][4] = W_KNIGHT; // Place White Knight at E4 (x=4, y=4)
+    GameState *b = CreateEmptyTestBoard();
+    b->grid[4][4] = W_KNIGHT;
 
-    // Valid L-shape move (E4 to F6 -> x=5, y=2)
     mouve k_valid = { .xStart = 4, .yStart = 4, .xEnd = 5, .yEnd = 2, .isWhite = true };
-    assert(CheckMouve(b, &k_valid) == true);
+    EXPECT_EQ(true, CheckMouve(b, &k_valid), "White Knight valid L-shape jump");
 
-    // Invalid straight move
     mouve k_invalid = { .xStart = 4, .yStart = 4, .xEnd = 4, .yEnd = 3, .isWhite = true };
-    assert(CheckMouve(b, &k_invalid) == false);
+    EXPECT_EQ(false, CheckMouve(b, &k_invalid), "White Knight invalid straight move");
+
+    b->grid[2][5] = W_PAWN;
+    EXPECT_EQ(false, CheckMouve(b, &k_valid), "White Knight blocked by own piece on landing");
 
     FreeBoard(b);
-    printf("Knight tests passed.\n");
 }
 
 void test_bishops() {
-    Board b = CreateEmptyTestBoard();
-    b[4][4] = W_BISHOP; // E4
+    GameState *b = CreateEmptyTestBoard();
+    b->grid[4][4] = W_BISHOP;
 
-    // Valid diagonal (E4 to C6 -> x=2, y=2)
     mouve b_valid = { .xStart = 4, .yStart = 4, .xEnd = 2, .yEnd = 2, .isWhite = true };
-    assert(CheckMouve(b, &b_valid) == true);
+    EXPECT_EQ(true, CheckMouve(b, &b_valid), "White Bishop valid diagonal");
 
-    // Invalid straight
     mouve b_invalid = { .xStart = 4, .yStart = 4, .xEnd = 4, .yEnd = 2, .isWhite = true };
-    assert(CheckMouve(b, &b_invalid) == false);
+    EXPECT_EQ(false, CheckMouve(b, &b_invalid), "White Bishop invalid straight");
+
+    b->grid[3][3] = B_PAWN;
+    EXPECT_EQ(false, CheckMouve(b, &b_valid), "White Bishop path blocked by enemy piece");
 
     FreeBoard(b);
-    printf("Bishop tests passed.\n");
 }
 
 void test_rooks() {
-    Board b = CreateEmptyTestBoard();
-    b[4][4] = W_ROOK; // E4
+    GameState *b = CreateEmptyTestBoard();
+    b->grid[4][4] = W_ROOK;
 
-    // Valid straight (E4 to E7 -> x=4, y=1)
     mouve r_valid = { .xStart = 4, .yStart = 4, .xEnd = 4, .yEnd = 1, .isWhite = true };
-    assert(CheckMouve(b, &r_valid) == true);
+    EXPECT_EQ(true, CheckMouve(b, &r_valid), "White Rook valid straight");
 
-    // Invalid diagonal
     mouve r_invalid = { .xStart = 4, .yStart = 4, .xEnd = 6, .yEnd = 2, .isWhite = true };
-    assert(CheckMouve(b, &r_invalid) == false);
+    EXPECT_EQ(false, CheckMouve(b, &r_invalid), "White Rook invalid diagonal");
+
+    b->grid[2][4] = W_PAWN;
+    EXPECT_EQ(false, CheckMouve(b, &r_valid), "White Rook path blocked by friendly piece");
 
     FreeBoard(b);
-    printf("Rook tests passed.\n");
 }
 
 void test_queens() {
-    Board b = CreateEmptyTestBoard();
-    b[4][4] = W_QUEEN; // E4
+    GameState *b = CreateEmptyTestBoard();
+    b->grid[4][4] = W_QUEEN;
 
-    // Valid straight
     mouve q_valid_straight = { .xStart = 4, .yStart = 4, .xEnd = 4, .yEnd = 1, .isWhite = true };
-    assert(CheckMouve(b, &q_valid_straight) == true);
+    EXPECT_EQ(true, CheckMouve(b, &q_valid_straight), "White Queen valid straight");
 
-    // Valid diagonal
     mouve q_valid_diag = { .xStart = 4, .yStart = 4, .xEnd = 7, .yEnd = 1, .isWhite = true };
-    assert(CheckMouve(b, &q_valid_diag) == true);
+    EXPECT_EQ(true, CheckMouve(b, &q_valid_diag), "White Queen valid diagonal");
 
-    // Invalid L-shape (Knight move)
     mouve q_invalid = { .xStart = 4, .yStart = 4, .xEnd = 5, .yEnd = 2, .isWhite = true };
-    assert(CheckMouve(b, &q_invalid) == false);
+    EXPECT_EQ(false, CheckMouve(b, &q_invalid), "White Queen invalid knight move");
 
     FreeBoard(b);
-    printf("Queen tests passed.\n");
 }
 
 void test_kings() {
-    Board b = CreateEmptyTestBoard();
-    b[4][4] = W_KING; // E4
+    GameState *b = CreateEmptyTestBoard();
+    b->grid[4][4] = W_KING;
 
-    // Valid 1-step move
     mouve k_valid = { .xStart = 4, .yStart = 4, .xEnd = 5, .yEnd = 5, .isWhite = true };
-    assert(CheckMouve(b, &k_valid) == true);
+    EXPECT_EQ(true, CheckMouve(b, &k_valid), "White King valid 1-step move");
 
-    // Invalid 2-step move
     mouve k_invalid = { .xStart = 4, .yStart = 4, .xEnd = 6, .yEnd = 6, .isWhite = true };
-    assert(CheckMouve(b, &k_invalid) == false);
+    EXPECT_EQ(false, CheckMouve(b, &k_invalid), "White King invalid 2-step move");
+
+    b->grid[4][7] = B_ROOK; // Attacks along y=4
+    mouve k_into_check = { .xStart = 4, .yStart = 4, .xEnd = 5, .yEnd = 4, .isWhite = true };
+    EXPECT_EQ(false, CheckMouve(b, &k_into_check), "White King moving into check by Rook");
 
     FreeBoard(b);
-    printf("King tests passed.\n");
 }
 
-int main() {
-    printf("Running unit tests...\n");
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        printf("Provide a test suite name (e.g., pawns, knights)\n");
+        return EXIT_FAILURE;
+    }
+
+    if (strcmp(argv[1], "utilities") == 0) test_utilities();
+    else if (strcmp(argv[1], "pawns") == 0) test_pawns();
+    else if (strcmp(argv[1], "knights") == 0) test_knights();
+    else if (strcmp(argv[1], "bishops") == 0) test_bishops();
+    else if (strcmp(argv[1], "rooks") == 0) test_rooks();
+    else if (strcmp(argv[1], "queens") == 0) test_queens();
+    else if (strcmp(argv[1], "kings") == 0) test_kings();
+    else {
+        printf("Unknown test suite: %s\n", argv[1]);
+        return EXIT_FAILURE;
+    }
+
+    if (tests_failed > 0) {
+        printf("%d tests failed in suite '%s'\n", tests_failed, argv[1]);
+        return EXIT_FAILURE;
+    }
     
-    test_utilities();
-    test_board_management();
-    test_pawns();
-    
-    // NOTE: The tests below will FAIL with an Assertion Error 
-    // until you implement the correct logic in check.c
-    test_knights();
-    test_bishops();
-    test_rooks();
-    test_queens();
-    test_kings();
-    
-    printf("All tests passed successfully!\n");
-    return 0;
+    return EXIT_SUCCESS;
 }

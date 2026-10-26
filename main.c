@@ -5,7 +5,7 @@
 
 int main(void) {
     bool isWhite = true;
-    Board b = CreateNullBoard();
+    GameState *b = CreateNullBoard();
     InitiliseBoard(b);
     PrintBoard(b);
     mouve *mv = getMouve(isWhite);

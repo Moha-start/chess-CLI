@@ -12,7 +12,7 @@
  * @param y The vertical coordinate of the square.
  * @return true if the square contains no piece; otherwise false.
  */
-bool isEmpty(Board board, uint x, uint y);
+bool isEmpty(GameState *board, uint x, uint y);
 
 /**
  * Determines whether the piece on the square at (x, y) belongs to White.
@@ -25,7 +25,7 @@ bool isEmpty(Board board, uint x, uint y);
  * @param y The vertical coordinate of the square.
  * @return true if the piece is white; false if it is black.
  */
-bool isWhite(Board board, uint x, uint y);
+bool isWhite(GameState *board, uint x, uint y);
 
 /**
  * Checks whether the king located at (x, y) is currently under attack.
@@ -39,7 +39,7 @@ bool isWhite(Board board, uint x, uint y);
  * @param isWhiteKing true if the king being checked is white, false otherwise.
  * @return true if the king is in check; false otherwise.
  */
-bool isKingAttaked(Board board, uint x, uint y, bool isWhiteKing);
+bool isKingAttaked(GameState *board, uint x, uint y, bool isWhiteKing);
 
 /**
  * Validates a white pawn move described by m.
@@ -48,7 +48,7 @@ bool isKingAttaked(Board board, uint x, uint y, bool isWhiteKing);
  * @param m Pointer to the move structure containing start and end coordinates.
  * @return true if the move follows white pawn rules; false otherwise.
  */
-bool CheckWhitePawn(Board board, mouve *m);
+bool CheckWhitePawn(GameState *board, mouve *m);
 
 /**
  * Validates a black pawn move described by m.
@@ -57,7 +57,7 @@ bool CheckWhitePawn(Board board, mouve *m);
  * @param m Pointer to the move structure containing start and end coordinates.
  * @return true if the move follows black pawn rules; false otherwise.
  */
-bool CheckBlackPawn(Board board, mouve *m);
+bool CheckBlackPawn(GameState *board, mouve *m);
 
 /**
  * Validates a white knight move described by m.
@@ -66,7 +66,7 @@ bool CheckBlackPawn(Board board, mouve *m);
  * @param m Pointer to the move structure containing start and end coordinates.
  * @return true if the move follows white knight rules; false otherwise.
  */
-bool CheckWhiteKnight(Board board, mouve *m);
+bool CheckWhiteKnight(GameState *board, mouve *m);
 
 /**
  * Validates a black knight move described by m.
@@ -75,7 +75,7 @@ bool CheckWhiteKnight(Board board, mouve *m);
  * @param m Pointer to the move structure containing start and end coordinates.
  * @return true if the move follows black knight rules; false otherwise.
  */
-bool CheckBlackKnight(Board board, mouve *m);
+bool CheckBlackKnight(GameState *board, mouve *m);
 
 /**
  * Validates a white bishop move described by m.
@@ -84,7 +84,7 @@ bool CheckBlackKnight(Board board, mouve *m);
  * @param m Pointer to the move structure containing start and end coordinates.
  * @return true if the move follows white bishop rules; false otherwise.
  */
-bool CheckWhiteBishop(Board board, mouve *m);
+bool CheckWhiteBishop(GameState *board, mouve *m);
 
 /**
  * Validates a black bishop move described by m.
@@ -93,7 +93,7 @@ bool CheckWhiteBishop(Board board, mouve *m);
  * @param m Pointer to the move structure containing start and end coordinates.
  * @return true if the move follows black bishop rules; false otherwise.
  */
-bool CheckBlackBishop(Board board, mouve *m);
+bool CheckBlackBishop(GameState *board, mouve *m);
 
 /**
  * Validates a white rook move described by m.
@@ -102,7 +102,7 @@ bool CheckBlackBishop(Board board, mouve *m);
  * @param m Pointer to the move structure containing start and end coordinates.
  * @return true if the move follows white rook rules; false otherwise.
  */
-bool CheckWhiteRook(Board board, mouve *m);
+bool CheckWhiteRook(GameState *board, mouve *m);
 
 /**
  * Validates a black rook move described by m.
@@ -111,7 +111,7 @@ bool CheckWhiteRook(Board board, mouve *m);
  * @param m Pointer to the move structure containing start and end coordinates.
  * @return true if the move follows black rook rules; false otherwise.
  */
-bool CheckBlackRook(Board board, mouve *m);
+bool CheckBlackRook(GameState *board, mouve *m);
 
 /**
  * Validates a white queen move described by m.
@@ -122,7 +122,7 @@ bool CheckBlackRook(Board board, mouve *m);
  * @param m Pointer to the move structure containing start and end coordinates.
  * @return true if the move follows white queen rules; false otherwise.
  */
-bool CheckWhiteQueen(Board board, mouve *m);
+bool CheckWhiteQueen(GameState *board, mouve *m);
 
 /**
  * Validates a black queen move described by m.
@@ -133,7 +133,7 @@ bool CheckWhiteQueen(Board board, mouve *m);
  * @param m Pointer to the move structure containing start and end coordinates.
  * @return true if the move follows black queen rules; false otherwise.
  */
-bool CheckBlackQueen(Board board, mouve *m);
+bool CheckBlackQueen(GameState *board, mouve *m);
 
 /**
  * Validates a white king move described by m.
@@ -145,7 +145,7 @@ bool CheckBlackQueen(Board board, mouve *m);
  * @param m Pointer to the move structure containing start and end coordinates.
  * @return true if the move follows white king rules; false otherwise.
  */
-bool CheckWhiteKing(Board board, mouve *m);
+bool CheckWhiteKing(GameState *board, mouve *m);
 
 /**
  * Validates a black king move described by m.
@@ -157,7 +157,7 @@ bool CheckWhiteKing(Board board, mouve *m);
  * @param m Pointer to the move structure containing start and end coordinates.
  * @return true if the move follows black king rules; false otherwise.
  */
-bool CheckBlackKing(Board board, mouve *m);
+bool CheckBlackKing(GameState *board, mouve *m);
 
 /**
  * Validates a move for the piece currently located at the starting square.
@@ -169,6 +169,6 @@ bool CheckBlackKing(Board board, mouve *m);
  * @param m Pointer to the move structure describing the attempted move.
  * @return true if the move is legal for the piece and color; false otherwise.
  */
-bool CheckMouve(Board board, mouve *m);
+bool CheckMouve(GameState *board, mouve *m);
 
 #endif // CHECK_H
