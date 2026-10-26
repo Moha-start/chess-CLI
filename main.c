@@ -13,9 +13,9 @@ int main(void) {
         fprintf(stderr, "there is an error with the mouvement\n");
         exit(EXIT_FAILURE);
     }
-    printf("Move is valid: %u\n", CheckMouve(b, mv));
     printmouve(b, mv);
     Mouve(b, mv);
+    PrintBoard(b);
     FreeBoard(b);
     return 0;
 }

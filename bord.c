@@ -170,19 +170,14 @@ void printmouve(GameState *state, mouve *m) {
 
 bool Mouve(GameState *state, mouve *m) {
     if (!CheckMouve(state, m)) return false;
-    
-    uint destPiece = state->grid[m->yEnd][m->xEnd];
-    
-    // If there's a piece at the destination, register it as captured
-    if (destPiece != EMPTY) {
-        uint colorIdx = (destPiece / 10 == 1) ? 0 : 1; // 0 for White (11-16), 1 for Black (21-26)
-        uint pieceIdx = destPiece % 10;                // 1=Pawn, 2=Knight, 3=Bishop, 4=Rook, 5=Queen, 6=King
-        state->emptyPieces[colorIdx][pieceIdx]++;
+    uint dest=state->grid[m->yEnd][m->xEnd];
+    if (dest!=EMPTY){
+        uint color=(dest / 10 == 1) ? 0 : 1;
+        uint piece=dest%10;
+        state->emptyPieces[color][piece]++;
     }
-
-    // Execute the move
-    state->grid[m->yEnd][m->xEnd] = state->grid[m->yStart][m->xStart];
-    state->grid[m->yStart][m->xStart] = EMPTY;
+    state->grid[m->yEnd][m->xEnd]=state->grid[m->yStart][m->xStart];
+    state->grid[m->yStart][m->xStart]=EMPTY;
     
     return true; 
 }
