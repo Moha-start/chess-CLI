@@ -180,23 +180,51 @@ void printmouve(GameState *state, mouve *m) {
 
 bool Mouve(GameState *state, mouve *m) {
     if (!CheckMouve(state, m)) return false;
+    
     uint start = state->grid[m->yStart][m->xStart];
     uint dest = state->grid[m->yEnd][m->xEnd];
+    
+    // 1. Détecter si on est en train de faire un en passant
+    bool isEnPassantCapture = false;
+    uint capturedPieceEnPassant = EMPTY;
+    // Si c'est un pion, qui bouge en diagonale, vers une case vide : c'est un en passant
+    if (getRankPiece(start) == PAWN && m->xStart != m->xEnd && isEmpty(state, m->xEnd, m->yEnd)) {
+        isEnPassantCapture = true;
+        // Le pion adverse est à côté de notre position de départ
+        capturedPieceEnPassant = state->grid[m->yStart][m->xEnd];
+    }
+
+    // 2. Gestion des captures (normale ou en passant)
     if (!isEmpty(state, m->xEnd, m->yEnd)){
+        // Capture normale
         uint color = isWhitePiece(dest) ? 0 : 1;
         uint piece = getRankPiece(dest);
         state->emptyPieces[color][piece]++;
+    } else if (isEnPassantCapture) {
+        // Capture en passant
+        uint color = isWhitePiece(capturedPieceEnPassant) ? 0 : 1;
+        uint piece = getRankPiece(capturedPieceEnPassant);
+        state->emptyPieces[color][piece]++;
+        
+        // Retirer le pion capturé de la grille !
+        state->grid[m->yStart][m->xEnd] = EMPTY;
     }
     
+    // 3. Mise à jour des statuts du Roi et des Tours
     uint color = isWhite(state, m->xStart, m->yStart) ? 0 : 1;
-    if (getRankPiece(start) == 6 && !state->KingMouved[color]) state->KingMouved[color] = true;
-    if (getRankPiece(start) == 4){
+    if (getRankPiece(start) == KING && !state->KingMouved[color]) state->KingMouved[color] = true;
+    if (getRankPiece(start) == ROOK){
         uint pos = m->xStart / 7;
         if (!state->rookmouved[color][pos]) state->rookmouved[color][pos] = true;
     }
 
+    // 4. Déplacement sur la grille
     state->grid[m->yEnd][m->xEnd] = start;
     state->grid[m->yStart][m->xStart] = EMPTY;
+    
+    // 5. SAUVEGARDER L'HISTORIQUE pour le prochain tour
+    state->lastMovePlayed = *m;
+    state->hasLastMove = true;
     
     return true; 
 }

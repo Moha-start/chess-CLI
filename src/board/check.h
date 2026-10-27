@@ -23,6 +23,15 @@ uint getRank(GameState *board, uint x, uint y);
 uint getRankPiece(uint piece);
 
 /**
+ * Validates if the attempted move is a legal en passant capture.
+ *
+ * @param board Pointer to the current game state.
+ * @param m Move description to validate.
+ * @return true if it is a valid en passant, false otherwise.
+ */
+bool isEnPassant(GameState *board, mouve *m);
+
+/**
  * Tests whether a square is empty.
  *
  * @param board Pointer to the current game state.

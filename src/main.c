@@ -17,5 +17,5 @@ int main(void) {
     Mouve(b, mv);
     PrintBoard(b);
     FreeBoard(b);
-    return 0;
+    return EXIT_SUCCESS;
 }
