@@ -42,6 +42,33 @@ GameState *CreateNullBoard(void) {
     }
     return state;
 }
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+char * combineStr(const char * str1, const char * str2, unsigned int index) {
+    size_t len1 = strlen(str1);    
+    if (index > len1) {
+        index = len1;
+    }
+
+    size_t len2 = strlen(str2);
+    size_t total_len = index + len2 + 2;
+
+    char * result = malloc(total_len * sizeof(char));
+    if (result == NULL) {
+        fprintf(stderr, "Out of memory\n");
+        exit(EXIT_FAILURE);
+    }
+    
+    strncpy(result, str1, index);    
+    result[index] = '\0'; 
+    strcat(result, str2);
+    
+    strcat(result, "\n");
+
+    return result;
+}
 
 void FreeBoard(GameState *state) {
     if (state == NULL) return;
