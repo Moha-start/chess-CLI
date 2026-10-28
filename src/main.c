@@ -35,13 +35,19 @@ void startStockfish(void){
         perror("Erreur au lancement de Stockfish");
          exit(EXIT_FAILURE);
     } else {
+        GameState *b = CreateNullBoard();
+        InitiliseBoard(b);
         close(pipeIn[0]);
         close(pipeOut[1]);
         #define SEND(cmd) write(pipeIn[1], cmd, strlen(cmd))
         SEND("uci\n");
         SEND("isready\n");
-        //get my fist mouve
-        SEND("position startpos moves e2e4 e7e5 g1f3\n");
+        
+        
+        char start[]="position startpos moves";
+        char * result =combineStr(b->oldMouves,b->Indexmouve,start);
+
+        SEND(result);
         SEND("go movetime 1000\n");
         char buffer[4096];
         ssize_t byteRead;

@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <limits.h>
 #include "check.h"
 
 uint getRank(GameState *state, uint x, uint y){
@@ -9,6 +10,277 @@ uint getRank(GameState *state, uint x, uint y){
 
 uint getRankPiece(uint piece){
     return piece%10;
+}
+
+uint ** cordAllPieces(GameState *state, bool isPWhite) {
+    uint **plays = malloc(16 * sizeof(uint *));
+    if (plays == NULL) {
+        FreeBoard(state);
+        fprintf(stderr, "Out of memory\n");
+        exit(EXIT_FAILURE);
+    }
+    
+    uint index = 0;
+    for (uint i = 0; i < 16; i++) {
+        plays[i] = malloc(2 * sizeof(uint));
+        if (plays[i] == NULL) {
+            fprintf(stderr, "Out of memory\n");
+            for (uint j = 0; j < i; j++) {
+                free(plays[j]);
+            }
+            free(plays);
+            FreeBoard(state);
+            exit(EXIT_FAILURE);
+        }
+    }
+    
+    for (uint i = 0; i < BOARDSIZE; i++) {
+        for (uint j = 0; j < BOARDSIZE; j++) {
+            uint piece = state->grid[i][j];
+            if (!isEmptyPiece(piece) && isWhitePiece(piece) == isPWhite) {
+                plays[index][0] = i;
+                plays[index][1] = j;
+                index++; 
+            }
+        }
+    }
+    return plays;
+}
+void allValideMouvesPawn(GameState *state,bool isPWhite,uint x,uint y,mouve ** valide,uint *indexmv){
+    int newcords[][2] = {
+        {x+1, y}, 
+        {x-1, y}, 
+        {x+1, y-1}, 
+        {x+1, y+1},
+        {x-1, y-1}, 
+        {x-1, y+1}
+    };
+    for (uint i=0;i<6;i++){
+        if((newcords[i][0]>-1&&newcords[i][0]<8)&&(newcords[i][1]>-1&&newcords[i][1]<8)){
+            mouve *mv = malloc(sizeof(mouve));
+            if (mv == NULL) {
+                fprintf(stderr, "Out of memory\n");
+                exit(EXIT_FAILURE);
+            }
+            mv->isWhite=isPWhite;
+            mv->xStart=x;
+            mv->yStart=y;
+            mv->xEnd=newcords[i][0];
+            mv->yEnd=newcords[i][1];
+            if (CheckMouve(state,mv)){
+                valide[*indexmv]=mv;
+                (*indexmv)++;
+            }else {
+                free(mv);
+            }
+        }
+    }
+}
+void allValideMouvesKnight(GameState *state,bool isPWhite,uint x,uint y,mouve ** valide,uint *indexmv){
+    int newcords[][2] = {
+        {x+2, y+1}, 
+        {x+2, y-1}, 
+        {x-2, y+1}, 
+        {x-2, y-1},
+        {x+1, y+2}, 
+        {x+1, y-2}, 
+        {x-1, y+2}, 
+        {x-1, y-2}
+    };
+    for (uint i=0;i<6;i++){
+        if((newcords[i][0]>-1&&newcords[i][0]<8)&&(newcords[i][1]>-1&&newcords[i][1]<8)){
+            mouve *mv = malloc(sizeof(mouve));
+            if (mv == NULL) {
+                fprintf(stderr, "Out of memory\n");
+                exit(EXIT_FAILURE);
+            }
+            mv->isWhite=isPWhite;
+            mv->xStart=x;
+            mv->yStart=y;
+            mv->xEnd=newcords[i][0];
+            mv->yEnd=newcords[i][1];
+            if (CheckMouve(state,mv)){
+                valide[*indexmv]=mv;
+                (*indexmv)++;
+            }else {
+                free(mv);
+            }
+        }
+    }       
+
+}
+void allValideMouvesBishop(GameState *state,bool isPWhite,uint x,uint y,mouve ** valide,uint *indexmv){
+    for (int xUpLeft=x++,yUpLeft=y++;xUpLeft<BOARDSIZE&&yUpLeft<BOARDSIZE;xUpLeft++,yUpLeft++){
+        mouve *mv = malloc(sizeof(mouve));
+            if (mv == NULL) {
+                fprintf(stderr, "Out of memory\n");
+                exit(EXIT_FAILURE);
+            }
+            mv->isWhite=isPWhite;
+            mv->xStart=x;
+            mv->yStart=y;
+            mv->xEnd=xUpLeft;
+            mv->yEnd=yUpLeft;
+            if (CheckMouve(state,mv)){
+                valide[*indexmv]=mv;
+                (*indexmv)++;
+            }else {
+                free(mv);
+            }
+        }
+    for (int xUpRight=x++,yUpRight=y--;xUpRight<BOARDSIZE&&yUpRight>-1;xUpRight++,yUpRight--){
+        mouve *mv = malloc(sizeof(mouve));
+            if (mv == NULL) {
+                fprintf(stderr, "Out of memory\n");
+                exit(EXIT_FAILURE);
+            }
+            mv->isWhite=isPWhite;
+            mv->xStart=x;
+            mv->yStart=y;
+            mv->xEnd=xUpRight;
+            mv->yEnd=yUpRight;
+            if (CheckMouve(state,mv)){
+                valide[*indexmv]=mv;
+                (*indexmv)++;
+            }else {
+                free(mv);
+            }
+        }      
+    for (int xDownRight=x--,yDownRight=y--;xDownRight>-1&&yDownRight>-1;xDownRight--,yDownRight--){
+        mouve *mv = malloc(sizeof(mouve));
+            if (mv == NULL) {
+                fprintf(stderr, "Out of memory\n");
+                exit(EXIT_FAILURE);
+            }
+            mv->isWhite=isPWhite;
+            mv->xStart=x;
+            mv->yStart=y;
+            mv->xEnd=xDownRight;
+            mv->yEnd=yDownRight;
+            if (CheckMouve(state,mv)){
+                valide[*indexmv]=mv;
+                (*indexmv)++;
+            }else {
+                free(mv);
+            }
+        }
+    for (int xDownLeft=x--,yDownLeft=y++;xDownLeft>-1&&yDownLeft<BOARDSIZE;xDownLeft--,yDownLeft++){
+        mouve *mv = malloc(sizeof(mouve));
+            if (mv == NULL) {
+                fprintf(stderr, "Out of memory\n");
+                exit(EXIT_FAILURE);
+            }
+            mv->isWhite=isPWhite;
+            mv->xStart=x;
+            mv->yStart=y;
+            mv->xEnd=xDownLeft;
+            mv->yEnd=yDownLeft;
+            if (CheckMouve(state,mv)){
+                valide[*indexmv]=mv;
+                (*indexmv)++;
+            }else {
+                free(mv);
+            }
+        }
+}
+void allValideMouvesRook(GameState *state,bool isPWhite,uint x,uint y,mouve ** valide,uint *indexmv){
+    for (uint xUp=x++;xUp<BOARDSIZE;xUp++){
+        mouve *mv = malloc(sizeof(mouve));
+            if (mv == NULL) {
+                fprintf(stderr, "Out of memory\n");
+                exit(EXIT_FAILURE);
+            }
+            mv->isWhite=isPWhite;
+            mv->xStart=x;
+            mv->yStart=y;
+            mv->xEnd=xUp;
+            mv->yEnd=y;
+            if (CheckMouve(state,mv)){
+                valide[*indexmv]=mv;
+                (*indexmv)++;
+            }else {
+                free(mv);
+            }
+        }
+    for (int xDown=x--;xDown>-1;xDown--){
+        mouve *mv = malloc(sizeof(mouve));
+            if (mv == NULL) {
+                fprintf(stderr, "Out of memory\n");
+                exit(EXIT_FAILURE);
+            }
+            mv->isWhite=isPWhite;
+            mv->xStart=x;
+            mv->yStart=y;
+            mv->xEnd=xDown;
+            mv->yEnd=y;
+            if (CheckMouve(state,mv)){
+                valide[*indexmv]=mv;
+                (*indexmv)++;
+            }else {
+                free(mv);
+            }
+        }
+    for (int yRight=y++;yRight<BOARDSIZE;yRight++){
+        mouve *mv = malloc(sizeof(mouve));
+            if (mv == NULL) {
+                fprintf(stderr, "Out of memory\n");
+                exit(EXIT_FAILURE);
+            }
+            mv->isWhite=isPWhite;
+            mv->xStart=x;
+            mv->yStart=y;
+            mv->xEnd=x;
+            mv->yEnd=yRight;
+            if (CheckMouve(state,mv)){
+                valide[*indexmv]=mv;
+                (*indexmv)++;
+            }else {
+                free(mv);
+            }
+        }
+    for (int yLeft=y--;yLeft>-1;yLeft--){
+        mouve *mv = malloc(sizeof(mouve));
+            if (mv == NULL) {
+                fprintf(stderr, "Out of memory\n");
+                exit(EXIT_FAILURE);
+            }
+            mv->isWhite=isPWhite;
+            mv->xStart=x;
+            mv->yStart=y;
+            mv->xEnd=x;
+            mv->yEnd=yLeft;
+            if (CheckMouve(state,mv)){
+                valide[*indexmv]=mv;
+                (*indexmv)++;
+            }else {
+                free(mv);
+            }
+        }
+            
+}
+void allValideMouvesQueen(GameState *state,bool isPWhite,uint x,uint y,mouve ** valide,uint *indexmv){
+    allValideMouvesRook(state,isPWhite,x,y,valide,indexmv);
+    allValideMouvesBishop(state,isPWhite,x,y,valide,indexmv);
+}
+void allValideMouvesKing(GameState *state,bool isPWhite,uint x,uint y,mouve ** valide,uint *indexmv);
+mouve ** allValideMouves(GameState *state,bool isPWhite){
+    mouve ** valide=malloc(150 * sizeof(mouve *));
+    uint indexmv=0; 
+    uint ** cords=cordAllPieces(state,isPWhite);
+    for (uint index=0;index<16;index++){
+        uint y = cords[index][0];
+        uint x = cords[index][1];
+        uint piece=getRank(state,x,y);
+        switch (piece) {
+        case PAWN : allValideMouvesPawn(state,isPWhite,x,y,valide,indexmv);
+        case BISHOP : allValideMouvesBishop(state,isPWhite,x,y,valide,indexmv);
+        case ROOK : allValideMouvesRook(state,isPWhite,x,y,valide,indexmv);
+        case QUEEN : allValideMouvesQueen(state,isPWhite,x,y,valide,indexmv);
+        case KING : allValideMouvesKing(state,isPWhite,x,y,valide,indexmv);
+        }
+        
+        
+    }
 }
 
 void getKings(GameState *state,uint * coord[]){
@@ -68,6 +340,10 @@ bool isEnPassant(GameState *state, mouve *m) {
 
 bool isEmpty(GameState *state, uint x, uint y) {
     return state->grid[y][x] == EMPTY;
+}
+
+bool isEmptyPiece(uint piece) {
+    return piece == EMPTY;
 }
 
 bool isWhite(GameState *state, uint x, uint y) {
@@ -369,7 +645,11 @@ bool CheckBlackKing(GameState *state, mouve *m) {
     }
     return false; 
 }
+bool isFiniched(GameState *state,bool isWhite){
+    uint coord[2][2];
+    getKings(state,coord);
 
+}
 bool CheckMouve(GameState *state, mouve *m) {
     if (isEmpty(state, m->xStart, m->yStart)) return false;
     uint startpiece = state->grid[m->yStart][m->xStart];

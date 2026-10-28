@@ -4,7 +4,6 @@
 #include <string.h>
 #include "bord.h"
 #include "check.h"
-
 GameState *CreateNullBoard(void) {
     GameState *state = malloc(sizeof(*state));
     if (state == NULL) {
@@ -42,9 +41,7 @@ GameState *CreateNullBoard(void) {
     }
     return state;
 }
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+
 
 char * combineStr(const char * str1, const char * str2, unsigned int index) {
     size_t len1 = strlen(str1);    
@@ -186,7 +183,10 @@ char FromUintToChar(unsigned int n, bool maj) {
 
 mouve *getMouve(bool isWhite) {
     mouve *curent = malloc(sizeof(mouve));
-    if (curent == NULL) return NULL;
+    if (curent == NULL) {
+        fprintf(stderr, "Out of memory\n");
+        exit(EXIT_FAILURE);
+    }
     char xS, xE;
     uint yS, yE;
     
