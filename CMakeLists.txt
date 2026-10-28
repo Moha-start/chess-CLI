@@ -12,8 +12,8 @@ enable_testing()
 include(ExternalProject)
 
 set(STOCKFISH_SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src/stockfish/src")
-set(STOCKFISH_BIN "${CMAKE_CURRENT_SOURCE_DIR}/src/stockfish/stockfish")
-
+#set(STOCKFISH_BIN "${CMAKE_CURRENT_SOURCE_DIR}/src/stockfish/stockfish")
+set(STOCKFISH_BIN "${CMAKE_CURRENT_BINARY_DIR}/stockfish")
 # Stockfish uses its own Makefile.
 # We build using `make -C ... build ARCH=x86-64-modern` (or ARCH=native)
 ExternalProject_Add(stockfish_build
@@ -30,6 +30,7 @@ ExternalProject_Add(stockfish_build
 add_library(chess_core 
     src/board/bord.c 
     src/board/check.c
+    src/board/mouvesStockfish.c
 )
 
 target_include_directories(chess_core PUBLIC src/board)

@@ -117,10 +117,11 @@ void allValideMouvesKing(GameState *state, bool isPWhite, uint x, uint y,
  *
  * @param state Pointer to the current game state.
  * @param isPWhite true to generate White's moves; false for Black's.
+ * @param index pointer to last empty case in the returned list.
  * @return Dynamically allocated array of move pointers; the caller owns the
  *         returned storage and moves.
  */
-mouve **allValideMouves(GameState *state, bool isPWhite);
+mouve **allValideMouves(GameState *state, bool isPWhite,uint *indexMv);
 
 /**
  * Validates if the attempted move is a legal en passant capture.
@@ -317,9 +318,9 @@ bool CheckMouve(GameState *state, mouve *m);
  * Checks whether the game has ended for the specified side.
  *
  * @param state Pointer to the current game state.
- * @param isWhite true to check White; false to check Black.
+ * @param isPWhite true to check White; false to check Black.
  * @return true if the game is finished for that side.
  */
-bool isFiniched(GameState *state, bool isWhite);
+bool isFiniched(GameState *state, bool isPWhite);
 
 #endif // CHECK_H

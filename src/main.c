@@ -2,10 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
-#include <unistd.h>
-#include <sys/wait.h>
 #include "bord.h"
 #include "check.h"
+#include "mouvesStockfish.h"
 uint chooseFlag(char *word,char *flags[],uint sizeFlags){
     if (word==NULL || flags==NULL)return false;
     for(uint i=0;i<sizeFlags;i++){
@@ -14,60 +13,7 @@ uint chooseFlag(char *word,char *flags[],uint sizeFlags){
     }
     return UINT_MAX;
 }
-void startStockfish(void){
-    int pipeIn[2];
-    int pipeOut[2];
-    if (pipe(pipeIn) == -1 || pipe(pipeOut) == -1){
-        perror("Erreur lors de la création des pipes");
-        exit(EXIT_FAILURE);
-    }
-    pid_t pid = fork();
-    if (pid == -1){
-        perror("Erreur lors du fork");
-         exit(EXIT_FAILURE);
-    }
-    if (pid == 0){
-        dup2(pipeIn[0],STDIN_FILENO);
-        dup2(pipeOut[0],STDOUT_FILENO);
-        close(pipeIn[0]);close(pipeIn[1]);
-        close(pipeOut[0]);close(pipeOut[1]);
-        execlp("stockfish", "stockfish", NULL);
-        perror("Erreur au lancement de Stockfish");
-         exit(EXIT_FAILURE);
-    } else {
-        GameState *b = CreateNullBoard();
-        InitiliseBoard(b);
-        close(pipeIn[0]);
-        close(pipeOut[1]);
-        #define SEND(cmd) write(pipeIn[1], cmd, strlen(cmd))
-        SEND("uci\n");
-        SEND("isready\n");
-        
-        
-        char start[]="position startpos moves";
-        char * result =combineStr(b->oldMouves,b->Indexmouve,start);
 
-        SEND(result);
-        SEND("go movetime 1000\n");
-        char buffer[4096];
-        ssize_t byteRead;
-        char *bestmouvePtr= NULL;
-        while ((byteRead=read(pipeOut[0], buffer, sizeof(buffer) -1 )) > 0){
-            buffer[byteRead]='\0';
-            bestmouvePtr=strstr(buffer,"bestmove");
-            if (bestmouvePtr != NULL){
-                printf("Résultat intercepté : %s\n", bestmouvePtr);
-                break;
-            }
-
-        }
-        SEND("quit\n");
-        close(pipeIn[1]);
-        close(pipeOut[0]);
-        wait(NULL);
-    }
-    
-}
 void startNormal(){
     bool isWhite = true;
     GameState *b = CreateNullBoard();

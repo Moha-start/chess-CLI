@@ -39,6 +39,9 @@ GameState *CreateNullBoard(void) {
             exit(EXIT_FAILURE);
         }
     }
+    state->Indexmouve = 0;
+    state->hasLastMove = false;
+    state->oldMouves[0] = '\0';
     return state;
 }
 
@@ -229,8 +232,10 @@ void saveMouve(GameState *state, mouve *m) {
     state->oldMouves[index+3] = (8 - m->yEnd) + '0';
     
     state->oldMouves[index+4] = ' ';
+    state->oldMouves[index+5] = '\0';
     state->Indexmouve += 5;
 }
+
 bool Mouve(GameState *state, mouve *m) {
     if (!CheckMouve(state, m)) return false;
     
