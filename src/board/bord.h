@@ -1,7 +1,9 @@
 #ifndef BORD_H
 #define BORD_H
-
+#define BOARDSIZE 8
+#define MAX_HISTORY_PLIES 2048
 #include <stdbool.h>
+
 
 enum pieces
 {
@@ -39,9 +41,11 @@ typedef struct {
     bool KingMouved[2];
     bool rookmouved[2][2];
     bool hasLastMove;
+    uint Indexmouve;
     mouve lastMovePlayed;
     uint emptyPieces[2][13];
     uint **grid;
+    char *oldMouves;
     
 } GameState;
 
@@ -54,7 +58,7 @@ void InitiliseBoard(GameState *state);
 char PieceToChar(uint piece);
 void PrintBoard(GameState *state);
 uint FromChartoUint(char c);
-char FromUintToChar(uint n);
+char FromUintToChar(uint n,bool maj);
 
 // Move operations
 mouve *getMouve(bool isWhite);

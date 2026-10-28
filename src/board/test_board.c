@@ -30,7 +30,7 @@ GameState *CreateEmptyTestBoard() {
 void test_utilities() {
     EXPECT_EQ(0, FromChartoUint('A'), "FromChartoUint('A') == 0");
     EXPECT_EQ(7, FromChartoUint('h'), "FromChartoUint('h') == 7");
-    EXPECT_EQ('D', FromUintToChar(3), "FromUintToChar(3) == 'D'");
+    EXPECT_EQ('D', FromUintToChar(3,true), "FromUintToChar(3,true) == 'D'");
     EXPECT_EQ('k', PieceToChar(B_KING), "PieceToChar(B_KING) == 'k'");
     EXPECT_EQ('.', PieceToChar(EMPTY), "PieceToChar(EMPTY) == '.'");
 

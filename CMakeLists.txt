@@ -11,18 +11,14 @@ add_library(chess_core
     src/board/check.c
 )
 
-# Permet à main.c et test_board.c de trouver bord.h et check.h
 target_include_directories(chess_core PUBLIC src/board)
 
-# Exécutable principal
 add_executable(board src/main.c)
 target_link_libraries(board chess_core)
 
-# Exécutable de test
 add_executable(test_board src/board/test_board.c)
 target_link_libraries(test_board chess_core)
 
-# Déclaration des tests
 add_test(NAME Utilities COMMAND test_board utilities)
 add_test(NAME Pawns COMMAND test_board pawns)
 add_test(NAME Knights COMMAND test_board knights)

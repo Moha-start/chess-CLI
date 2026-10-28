@@ -14,19 +14,27 @@ GameState *CreateNullBoard(void) {
     memset(state->emptyPieces, 0, sizeof(state->emptyPieces));
 
     state->grid = malloc(8 * sizeof(*state->grid));
-
+    
     if (state->grid == NULL) {
         fprintf(stderr, "Out of memory\n");
         free(state);
         exit(EXIT_FAILURE);
     }
-    for (unsigned int i = 0; i < 8; i++) {
+    state->oldMouves = malloc((6 * MAX_HISTORY_PLIES) + 1);
+    if (state->oldMouves == NULL) {
+        fprintf(stderr, "Out of memory\n");
+        free(state->grid);
+        free(state);
+        exit(EXIT_FAILURE);
+    }
+    for (uint i = 0; i < 8; i++) {
         state->grid[i] = malloc(8 * sizeof(*state->grid[i]));
         if (state->grid[i] == NULL) {
             fprintf(stderr, "Out of memory\n");
-            for (unsigned int j = 0; j < i; j++) {
+            for (uint j = 0; j < i; j++) {
                 free(state->grid[j]);
             }
+            free(state->oldMouves);
             free(state->grid);
             free(state);
             exit(EXIT_FAILURE);
@@ -37,7 +45,9 @@ GameState *CreateNullBoard(void) {
 
 void FreeBoard(GameState *state) {
     if (state == NULL) return;
-
+    if(state->oldMouves!=NULL){
+        free(state->oldMouves);
+    }
     if (state->grid != NULL) {
         for (int i = 0; i < 8; i++) {
             free(state->grid[i]);
@@ -138,9 +148,13 @@ uint FromChartoUint(char c) {
     return 99;
 }
 
-char FromUintToChar(uint n) {
-    char mot[] = "ABCDEFGH";
-    return mot[n];
+char FromUintToChar(unsigned int n, bool maj) {
+    if (n > 7) {
+        return '\0'; 
+    }
+    
+    char base = maj ? 'A' : 'a';
+    return (char)(base + n);
 }
 
 mouve *getMouve(bool isWhite) {
@@ -172,45 +186,49 @@ mouve *getMouve(bool isWhite) {
 
 void printmouve(GameState *state, mouve *m) {
     printf("your star position is %c,%u(%c)\n", 
-            FromUintToChar(m->xStart), 8 - m->yStart, PieceToChar(state->grid[m->yStart][m->xStart]));
+            FromUintToChar(m->xStart,true), 8 - m->yStart, PieceToChar(state->grid[m->yStart][m->xStart]));
             
     printf("your end position is %c,%u(%c)\n", 
-            FromUintToChar(m->xEnd), 8 - m->yEnd, PieceToChar(state->grid[m->yEnd][m->xEnd]));
+            FromUintToChar(m->xEnd,true), 8 - m->yEnd, PieceToChar(state->grid[m->yEnd][m->xEnd]));
 }
 
+void saveMouve(GameState *state, mouve *m) {
+    uint index = state->Indexmouve;
+    
+    state->oldMouves[index] = FromUintToChar(m->xStart,false);    
+    state->oldMouves[index+1] = (8 - m->yStart) + '0';
+    
+    state->oldMouves[index+2] = FromUintToChar(m->xEnd,false);
+    state->oldMouves[index+3] = (8 - m->yEnd) + '0';
+    
+    state->oldMouves[index+4] = ' ';
+    state->Indexmouve += 5;
+}
 bool Mouve(GameState *state, mouve *m) {
     if (!CheckMouve(state, m)) return false;
     
     uint start = state->grid[m->yStart][m->xStart];
     uint dest = state->grid[m->yEnd][m->xEnd];
     
-    // 1. Détecter si on est en train de faire un en passant
     bool isEnPassantCapture = false;
     uint capturedPieceEnPassant = EMPTY;
-    // Si c'est un pion, qui bouge en diagonale, vers une case vide : c'est un en passant
     if (getRankPiece(start) == PAWN && m->xStart != m->xEnd && isEmpty(state, m->xEnd, m->yEnd)) {
         isEnPassantCapture = true;
-        // Le pion adverse est à côté de notre position de départ
         capturedPieceEnPassant = state->grid[m->yStart][m->xEnd];
     }
 
-    // 2. Gestion des captures (normale ou en passant)
     if (!isEmpty(state, m->xEnd, m->yEnd)){
-        // Capture normale
         uint color = isWhitePiece(dest) ? 0 : 1;
         uint piece = getRankPiece(dest);
         state->emptyPieces[color][piece]++;
     } else if (isEnPassantCapture) {
-        // Capture en passant
         uint color = isWhitePiece(capturedPieceEnPassant) ? 0 : 1;
         uint piece = getRankPiece(capturedPieceEnPassant);
         state->emptyPieces[color][piece]++;
         
-        // Retirer le pion capturé de la grille !
         state->grid[m->yStart][m->xEnd] = EMPTY;
     }
     
-    // 3. Mise à jour des statuts du Roi et des Tours
     uint color = isWhite(state, m->xStart, m->yStart) ? 0 : 1;
     if (getRankPiece(start) == KING && !state->KingMouved[color]) state->KingMouved[color] = true;
     if (getRankPiece(start) == ROOK){
@@ -218,13 +236,13 @@ bool Mouve(GameState *state, mouve *m) {
         if (!state->rookmouved[color][pos]) state->rookmouved[color][pos] = true;
     }
 
-    // 4. Déplacement sur la grille
     state->grid[m->yEnd][m->xEnd] = start;
     state->grid[m->yStart][m->xStart] = EMPTY;
     
-    // 5. SAUVEGARDER L'HISTORIQUE pour le prochain tour
     state->lastMovePlayed = *m;
     state->hasLastMove = true;
+    saveMouve(state,m);
+
     
     return true; 
 }
