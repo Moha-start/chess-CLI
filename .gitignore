@@ -1,1 +1,14 @@
 build/
+src/stockfish/stockfish
+
+# C/C++ Object files
+*.o
+
+# Stockfish neural networks and binaries
+*.nnue
+src/stockfish/src/stockfish
+src/stockfish/stockfish
+
+# Stockfish build metadata
+src/stockfish/src/.build_*
+src/stockfish/src/.depend
