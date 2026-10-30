@@ -158,7 +158,7 @@ char *combineStr(const char *str1, const char *str2, unsigned int index);
  *         is invalid or allocation fails. Invalid coordinates terminate the
  *         process.
  */
-mouve *getMouve(bool isWhite);
+mouve *getMouve(GameState * state,bool isWhite);
 
 /**
  * Print a move's start and end squares and the pieces currently on them.

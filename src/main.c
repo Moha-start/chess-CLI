@@ -19,7 +19,7 @@ void startNormal(){
     GameState *b = CreateNullBoard();
     InitiliseBoard(b);
     PrintBoard(b);
-    mouve *mv = getMouve(isWhite);
+    mouve *mv = getMouve(b,isWhite);
     if (mv == NULL) {
         fprintf(stderr, "there is an error with the mouvement\n");
         exit(EXIT_FAILURE);

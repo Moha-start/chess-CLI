@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <limits.h>
 #include <string.h>
 #include "bord.h"
 #include "check.h"
@@ -172,7 +173,8 @@ uint FromChartoUint(char c) {
     else if (c == 'F' || c == 'f') return 5;
     else if (c == 'G' || c == 'g') return 6;
     else if (c == 'H' || c == 'h') return 7;
-    return 99;
+    else if (c == 'q' || c == 'Q') return 99;
+    return UINT_MAX;
 }
 
 char FromUintToChar(unsigned int n, bool maj) {
@@ -184,7 +186,7 @@ char FromUintToChar(unsigned int n, bool maj) {
     return (char)(base + n);
 }
 
-mouve *getMouve(bool isWhite) {
+mouve *getMouve(GameState * state,bool isWhite) {
     mouve *curent = malloc(sizeof(mouve));
     if (curent == NULL) {
         fprintf(stderr, "Out of memory\n");
@@ -193,10 +195,20 @@ mouve *getMouve(bool isWhite) {
     char xS, xE;
     uint yS, yE;
     
-    printf("Enter values start end(x9x9): ");
-    if (scanf(" %c %u %c %u", &xS, &yS, &xE, &yE) == 4) {
+    printf("Enter values start end(x9x9) : ");
+    char buffer[128];
+    if(fgets(buffer,sizeof(buffer),stdin)==NULL){
+        FreeBoard(state);
+        exit(EXIT_FAILURE);
+    }
+    if (sscanf(buffer," %c %u %c %u", &xS, &yS, &xE, &yE)==4){
         uint xstart = FromChartoUint(xS);
         uint xend = FromChartoUint(xE);
+        if(xstart==99 || xend==99){
+            FreeBoard(state);
+            printf("shame you quit the game\n");
+            exit(EXIT_FAILURE);
+        }
         if (xend > 7 || xstart > 7 || yS < 1 || yS > 8 || yE < 1 || yE > 8) {
             fprintf(stderr, "you must give a valide piece\n");
             exit(EXIT_FAILURE);
@@ -205,7 +217,16 @@ mouve *getMouve(bool isWhite) {
         curent->xEnd = xend;
         curent->yStart = 8 - yS;
         curent->yEnd = 8 - yE;
-    } else {
+    } else if(sscanf(buffer, " %c",&xS)==1){
+        uint xstart=FromChartoUint(xS);
+        if(xstart==99 || xS=='q' || xS=='Q'){
+            FreeBoard(state);
+            printf("shame you quit the game\n");
+            exit(EXIT_FAILURE);
+        } else {
+        printf("Invalid input format. Enter move as: <col> <row> <col> <row> (e.g., a 2 a 4) or 'q' to quit.\n");
+        }
+    }else {
         printf("Invalid input format.\n");
         free(curent);
         return NULL;

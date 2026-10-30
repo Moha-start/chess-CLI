@@ -74,7 +74,7 @@ void startStockfish(void){
             if(isPWhite){
                 while(true){
                     PrintBoard(b);
-                    mouve *mv = getMouve(isPWhite);
+                    mouve *mv = getMouve(b,isPWhite);
                     printmouve(b,mv);
                     if (mv == NULL) {
                         FreeBoard(b);
